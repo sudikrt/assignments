@@ -1,86 +1,116 @@
-#include <stdio.h>
+#include "cache_header.h"
 
 int main ()
 {
-        int n, k, i, count = 0, ref [20], f_size, frame_array [20], j, 
-        hit = 0, pos = 0, point = 0;
+        int limit       =       0;
+        int k_index     =       0;
+        int index       =       0;
+        int count       =       0;
+        int f_size      =       0;
+        int j_index     =       0;
+        int hit         =       0;
+        int pos         =       0;
+        int point       =       0;
+        int ret         =       -1;
+        int ref [20];
+        int frame_array [20]; 
+
         printf ("\tEnter the no. of elements :");
-        scanf ("%d", &n);
+        scanf ("%d", &limit);
+
+        if (limit <= 0)
+                goto out;
+
+        printf ("\tEnter the page no. :");
+        for (index = 0; index < limit; index++)
+        {
+                scanf ("%d", &ref [index]);
+                frame_array [index] = -1;
+        }
+
         printf ("\tEnter the frame size:");
         scanf ("%d", &f_size);
-        printf ("\tEnter the page no. :");
-        for (i = 0; i < n; i++)
+
+        if (f_size <= 0)
+                goto out;
+
+        for (index = 0; index < limit; index++)
         {
-                scanf ("%d", &ref [i]);
-                frame_array [i] = -1;
-        }
-        for (i = 0; i < n; i++)
-        {
-                for ( j = 0; j < f_size; j++)
+                for ( j_index = 0; j_index < f_size; j_index++)
                 {
-                        if (frame_array [j] == ref [i])
+                        if (frame_array [j_index] == ref [index])
                         {
-                                point = j;
+                                point = j_index;
                                 count = 1;
                                 hit++;
                                 break;
                         }
                 }
+
                 if (count == 1)
                 {
                         if (point <= pos)
                         {
-                                for (j = point; j < pos-1; j++)
+                                for (j_index = point; j_index < pos-1;
+                                        j_index++)
                                 {
-                                        frame_array [j] = frame_array [j+1];
+                                        frame_array [j_index] =
+                                        frame_array [j_index+1];
                                 }
-                                frame_array [j] = ref [i];
+                                frame_array [j_index] = ref [index];
                         }
                         else
                         {
                                 if ( point == f_size -1)
                                 {
-                                        frame_array [point] = ref [i];
+                                        frame_array [point] = ref [index];
                                 }
                                 else
                                 {
-                                        for (j = point ; j < f_size - 1 ; j++)
+                                        for (j_index = point ; j_index < f_size - 1 ;
+                                                j_index++)
                                         {
-                                                frame_array [j] = frame_array [j+1];
+                                                frame_array [j_index] =
+                                                        frame_array [j_index+1];
                                         }
-                                        frame_array [j] = ref [i];
+                                        frame_array [j_index] = ref [index];
                                 }
                         }
-                        printf ("\tHit in the Frame value of %d page is \t", ref [i]);
-                        for (k = 0; k < f_size ; k++)
+                        printf ("\tHit in the Frame value of %d page is \t",
+                                        ref [index]);
+                        for (k_index = 0; k_index < f_size ; k_index++)
                         {
-                                printf ("\t%d",frame_array [k]);
+                                printf ("\t%d",frame_array [k_index]);
                         }
                         printf ("\n\n");
+
                         count = 0;
                 }
                 else
                 {
                         if (pos != f_size)
                         {
-                                frame_array [pos++] = ref [i];
+                                frame_array [pos++] = ref [index];
                         }
                         else
                         {
-                                for (j = 0; j < f_size - 1; j++)
+                                for (j_index = 0; j_index < f_size - 1; j_index++)
                                 {
-                                        frame_array [j] = frame_array [j+1];
+                                        frame_array [j_index] =
+                                                frame_array [j_index+1];
                                 }
-                                frame_array [j] = ref [i];
+                                frame_array [j_index] = ref [index];
                         }
-                        printf ("\tFrame value of %d page is \t", ref [i]);
-                        for (k = 0; k < f_size ; k++)
+                        printf ("\tFrame value of %d page is \t", ref [index]);
+                        for (k_index = 0; k_index < f_size ; k_index++)
                         {
-                                printf ("\t%d",frame_array [k]);
+                                printf ("\t%d",frame_array [k_index]);
                         }
                         printf ("\n\n");
                 }
         }
-        printf ("No of page faults is %d\n", (n-hit));
-
+        printf ("No of page faults is %d\n", (limit-hit));
+        ret = 0;
+        out :
+                return ret;
 }

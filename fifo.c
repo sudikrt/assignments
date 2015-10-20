@@ -1,52 +1,76 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "cache_header.h"
 
 int main ()
 {
-        int n, k, i, count = 0, ref [20 ], f_size, frame_array [10] = {0}, j, hit = 0, pos = 0;
+        int limit       =       0;
+        int k_index     =       0;
+        int index       =       0;
+        int count       =       0;
+        int f_size      =       0; 
+        int j_index     =       0;
+        int hit         =       0;
+        int pos         =       0;
+        int ret         =       -1;
+        int ref [20];
+        int frame_array [10];
+
         printf ("\tEnter the no. of elements :");
-        scanf ("%d", &n);
+        scanf ("%d", &limit);
+
+        if (limit <= 0)
+                goto out;
+
+        printf ("\tEnter the page no. :");
+        for (index = 0; index < limit; index++)
+        {
+                scanf ("%d", &ref [index]);
+        }
+
         printf ("\tEnter the frame size:");
         scanf ("%d", &f_size);
-        printf ("\tEnter the page no. :");
-        for (i = 0; i < n; i++)
-        {
-                scanf ("%d", &ref [i]);
-        }
-        for (i = 0; i < n; i++)
+
+        if (limit <= 0)
+                goto out;
+
+        for (index = 0; index < limit; index++)
         {
                 count = 0;
-                for ( j = 0; j < f_size; j++)
+                for ( j_index = 0; j_index < f_size; j_index++)
                 {
-                        if (ref [i] == frame_array [j])
+                        if (ref [index] == frame_array [j_index])
                         {
                                 hit++;
                                 count = 1;
-                                printf ("\tHit in the Frame value of %d page is \t", ref [i]);
-                                for (k = 0; k < f_size ; k++)
+                                printf ("\tHit in the Frame value of %d page is \t", ref [index]);
+                                for (k_index = 0; k_index < f_size ; k_index++)
                                 {
-                                        printf ("\t%d",frame_array [k]);
+                                        printf ("\t%d",frame_array [k_index]);
                                 }
                                 printf ("\n\n");
                                 break;
                         }
                 }
-                
+
                 if (count == 0){
                         if (pos >= f_size )
                         {
                                 pos = 0;
                         }
-                        frame_array [pos++] = ref [i];
+                        frame_array [pos++] = ref [index];
                        
-                        printf ("\tFrame value is of %d page is \t", ref [i]);
-                                for (k = 0; k < f_size ; k++)
+                        printf ("\tFrame value is of %d page is \t", ref [index]);
+                                for (k_index = 0; k_index < f_size ; k_index++)
                         {
-                                printf ("\t%d",frame_array [k]);
+                                printf ("\t%d",frame_array [k_index]);
                         }
                         printf ("\n\n");
                 }
         }
+
         printf ("Hit %d\n", hit);
-        printf ("Total no of page fault is %d\n", (n-hit));
+        printf ("Total no of page fault is %d\n", (limit-hit));
+        ret = 0;
+
+        out :
+                return ret;
 }
