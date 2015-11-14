@@ -63,8 +63,7 @@ int main (int argc, char *argv [])
         int fd          =       0;
         int n           =       0;
         int fault       =       0;
-        int ref [20];
-        int frame_array [20]; 
+        int frame_array [100]; 
         
         if(argc < 4)
         {
