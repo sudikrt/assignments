@@ -42,11 +42,12 @@ int get_doc_from_server (int client_fd, char * file_name, char * dest)
                 goto out;
             }
         }
-        close (fd);
         printf ("\tFile Successfully saved\n");
         
         out:
-            
+            if (fd >= 0) {
+                close (fd);
+            }
             free (buffer);
             return ret;
 }
