@@ -45,6 +45,9 @@ int send_data_to_client (int client_fd, char * file_name, char * p_dir)
     
     ret = 0;
     out:
+        if (fd >= 0) {
+            close (fd);
+        }
         free (buffer);
         return ret;
     
