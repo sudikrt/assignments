@@ -1,7 +1,5 @@
 #include "socket_header.h"
-#include <errno.h>
 
-extern int errno;
 /*This will send the file to client*/
 int send_data_to_client (int client_fd, char * file_name, char * p_dir)
 {
@@ -14,7 +12,7 @@ int send_data_to_client (int client_fd, char * file_name, char * p_dir)
     ret = chdir(p_dir);
     if (ret == -1)
     {
-        fprintf (stderr, "\t%s\n", strerror(errno));
+        fprintf (stderr, "\tERROR: %s\n", strerror(errno));
         ret = file_not_exist;
         goto out;   
     }
@@ -22,7 +20,7 @@ int send_data_to_client (int client_fd, char * file_name, char * p_dir)
     fd = open(file_name, O_RDONLY);
     if(fd == -1)
     {
-        fprintf (stderr, "\t%s\n", strerror(errno));
+        fprintf (stderr, "\tERROR: %s\n", strerror(errno));
         ret = -1;
         goto out;
     }
@@ -40,7 +38,7 @@ int send_data_to_client (int client_fd, char * file_name, char * p_dir)
         if (number_of_bytes == 0)
         {
             ret = -1;
-            fprintf (stderr, "\t%s\n", strerror(errno));
+            fprintf (stderr, "\tERROR: %s\n", strerror(errno));
             goto out;
         }
     }

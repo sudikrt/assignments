@@ -1,7 +1,5 @@
 #include "socket_header.h"
-#include <errno.h>
 
-extern int errno;
 /*This will recieve the file from the server*/
 int get_doc_from_server (int client_fd, char * file_name, char * dest)
 {
@@ -37,16 +35,16 @@ int get_doc_from_server (int client_fd, char * file_name, char * dest)
                 break;
             }
             ret = write (fd, buffer, number_of_bytes_read);
-            if (ret == 0)
+            if (ret <= 0)
             {
                 ret = -1;
-                fprintf (stderr, "\t%s\n", strerror(errno));
+                fprintf (stderr, "\tERROR: %s\n", strerror(errno));
                 goto out;
             }
         }
         close (fd);
+        printf ("\tFile Successfully saved\n");
         
-        ret = 0;      
         out:
             
             free (buffer);

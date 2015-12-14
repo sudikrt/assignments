@@ -1,11 +1,9 @@
 #include "socket_header.h"
 
-extern int errno;
-
 int main (int argc, char * argv [])
 {
-    int socket_fd       =       0;
     int ret             =       -1;
+    int socket_fd       =       0;
     int port            =       0;
     char * server_name;
     char * destination;
@@ -52,23 +50,10 @@ int main (int argc, char * argv [])
         }
     }while (next_option != -1);
     
-    /*Creates the socket*/
-    socket_fd = socket (AF_INET, SOCK_STREAM, 0);
-    if (socket_fd < 0)
+    /*Initiate the client connection*/
+    socket_fd = s_ftp_rpc_client (port, server_name);
+    if(socket_fd < 0)
     {
-        fprintf (stderr, "\t%s\n", strerror(errno));
-        ret = -1;
-        goto out;
-    }
-    
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons (port);
-    server_addr.sin_addr.s_addr = inet_addr (server_name);
-    
-    /*Connects to server or host*/
-    if(connect (socket_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
-    {
-        fprintf (stderr, "\t%s\n", strerror(errno));
         ret = -1;
         goto out;
     }
@@ -76,8 +61,12 @@ int main (int argc, char * argv [])
 
     /*Client request for the particular named file*/
     ret = request (socket_fd, file_name, destination);
+    if (ret < 0)
+    {
+        goto out;
+    }
     
+    ret = 0;
     out:
         return ret;
-    
 }
