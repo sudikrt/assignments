@@ -1,11 +1,5 @@
 #include "socket_header.h"
 
-#include <signal.h>
-
-void handler (int signal_number)
-{
-    printf ("Handling signal\n");
-}
 int main (int argc, char* argv [])
 {
     int socket_fd       =       0;
@@ -72,7 +66,6 @@ int main (int argc, char* argv [])
         }
         printf ("\tClient Connected\n");
         
-        sigaction (SIGKILL, &sa, NULL);
         /*Giving the service to client*/
         ret = server_response (client_fd, path);
     }
