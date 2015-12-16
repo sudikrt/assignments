@@ -30,8 +30,15 @@ int get_doc_from_server (int client_fd, char * file_name, char * dest)
         while (1)
         {
             number_of_bytes_read = read (client_fd, buffer, 1000);
+            
+            if (number_of_bytes_read < 0)
+            {
+                ret = -1;
+                break;
+            }
             if (number_of_bytes_read == 0)
             {
+                ret = 0;
                 break;
             }
             ret = write (fd, buffer, number_of_bytes_read);
@@ -42,11 +49,7 @@ int get_doc_from_server (int client_fd, char * file_name, char * dest)
                 goto out;
             }
         }
-<<<<<<< HEAD
         
-=======
->>>>>>> 7e689367a259bdd39e199ad5e47081e8fc03d6cc
-        printf ("\tFile Successfully saved\n");
         
         out:
             if (fd >= 0) {

@@ -1,11 +1,5 @@
 #include "socket_header.h"
 
-#include <signal.h>
-
-void handler (int signal_number)
-{
-    printf ("Handling signal\n");
-}
 int main (int argc, char* argv [])
 {
     int socket_fd       =       0;
@@ -18,10 +12,6 @@ int main (int argc, char* argv [])
     
     struct sockaddr_in client_addr;
     
-    struct sigaction sa;
-    memset (&sa, 0, sizeof (sa));
-    sa.sa_handler = &handler;
-    
     /*Command line options*/
     const char* const short_option = "p:d:";
 
@@ -30,7 +20,7 @@ int main (int argc, char* argv [])
             { "destination",1, NULL, 'd'},
             { "NULL",       0, NULL,  0 } 
     };
-    printf ("Id Thread main %d\n", (int)pthread_self ());
+    printf ("Thread Id at main  %d\n", (int)pthread_self ());
     do
     {
         next_option = getopt_long (argc, argv, short_option, long_option, NULL);
@@ -51,8 +41,8 @@ int main (int argc, char* argv [])
         }
     }while (next_option != -1);
     
-    //pid = pthread_self();
-    
+    printf ("\tPress ctrl+c to exit\n");
+        
     /*Creates the server socket*/
     socket_fd = sftp_rpc_server_init (port);
     if (socket_fd < 0)
@@ -72,12 +62,13 @@ int main (int argc, char* argv [])
         }
         printf ("\tClient Connected\n");
         
-        sigaction (SIGKILL, &sa, NULL);
         /*Giving the service to client*/
         ret = server_response (client_fd, path);
     }
+    
     ret = 0;
     out:
+        close (socket_fd);
         return ret;
 }
 

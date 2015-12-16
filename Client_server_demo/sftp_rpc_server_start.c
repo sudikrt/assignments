@@ -15,7 +15,7 @@ int sftp_rpc_server_start (int socket_fd)
     }
     
     pid = pthread_self();
-    printf ("Id Thread initilize %d\n", pid);
+    printf ("Thread Id at initilize %d\n", pid);
     
     ret = client_fd;
     

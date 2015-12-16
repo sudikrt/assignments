@@ -25,7 +25,6 @@ int sftp_rpc_server_init (int port)
     if (bind (socket_fd, (struct sockaddr *) &server_addr,
                                                     sizeof(server_addr)) < 0)
     {
-        printf ("Hello\n");
         fprintf (stderr, "\tERROR: %s\n", strerror(errno));
         ret = -1;
         goto out;

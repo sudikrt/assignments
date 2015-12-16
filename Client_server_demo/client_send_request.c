@@ -48,6 +48,7 @@ int request (int client_fd, char * file_name, char * dest)
                                         printf ("\tError in saving the file\n");
                                         goto out;
                                     }
+                                    printf ("\tFile Successfully saved\n");
                                     exit_var = 0;
                                     break;
                     }

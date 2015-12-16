@@ -21,7 +21,7 @@ int main (int argc, char * argv [])
             { "destination",1, NULL, 'd'},
             { "NULL",       0, NULL,  0 } 
     };
-    printf ("Id Thread main %d\n", pthread_self ());
+    printf ("Thread Id at main %d\n", pthread_self ());
     do
     {
         next_option = getopt_long (argc, argv, short_option, long_option, NULL);

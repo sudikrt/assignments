@@ -47,13 +47,11 @@ int server_response (int client_fd, char * p_dir)
             if(ret < 0)
             {
                 ret = -1;
+                printf ("\tError in sending file \n");
                 goto out;
             }
             printf("\tFinished sending\n");
             
-            /*Closes the client connection*/
-            close (client_fd);
-                        
             ret = 0;
             goto out;
         }
