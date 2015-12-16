@@ -42,7 +42,10 @@ int get_doc_from_server (int client_fd, char * file_name, char * dest)
                 goto out;
             }
         }
+<<<<<<< HEAD
         
+=======
+>>>>>>> 7e689367a259bdd39e199ad5e47081e8fc03d6cc
         printf ("\tFile Successfully saved\n");
         
         out:
