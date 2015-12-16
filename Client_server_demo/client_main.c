@@ -21,7 +21,7 @@ int main (int argc, char * argv [])
             { "destination",1, NULL, 'd'},
             { "NULL",       0, NULL,  0 } 
     };
-    
+    printf ("Id Thread main %d\n", pthread_self ());
     do
     {
         next_option = getopt_long (argc, argv, short_option, long_option, NULL);
@@ -51,7 +51,7 @@ int main (int argc, char * argv [])
     }while (next_option != -1);
     
     /*Initiate the client connection*/
-    socket_fd = s_ftp_rpc_client (port, server_name);
+    socket_fd = sftp_rpc_client (port, server_name);
     if(socket_fd < 0)
     {
         ret = -1;

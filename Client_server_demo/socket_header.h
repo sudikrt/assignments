@@ -8,6 +8,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <errno.h>
+#include <pthread.h>
 
 #define BACK_LOG 5
 

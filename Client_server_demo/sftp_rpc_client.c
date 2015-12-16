@@ -1,6 +1,6 @@
 #include "socket_header.h"
 
-int s_ftp_rpc_client (int port, char * server_name)
+int sftp_rpc_client (int port, char * server_name)
 {
     int ret             =       -1;
     int socket_fd       =       0;

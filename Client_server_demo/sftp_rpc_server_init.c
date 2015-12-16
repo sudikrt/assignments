@@ -1,7 +1,7 @@
 #include "socket_header.h"
 #define BACK_LOG 5
 
-int s_ftp_rpc_server (int port)
+int sftp_rpc_server_init (int port)
 {
     int ret             =       -1;
     int socket_fd       =       0;
@@ -25,6 +25,7 @@ int s_ftp_rpc_server (int port)
     if (bind (socket_fd, (struct sockaddr *) &server_addr,
                                                     sizeof(server_addr)) < 0)
     {
+        printf ("Hello\n");
         fprintf (stderr, "\tERROR: %s\n", strerror(errno));
         ret = -1;
         goto out;
