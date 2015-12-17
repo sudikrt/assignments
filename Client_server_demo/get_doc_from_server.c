@@ -13,16 +13,16 @@ int get_doc_from_server (int client_fd, char * file_name, char * dest)
         ret = chdir(dest);
         if(ret == -1)
         {
-            fprintf (stderr,strerror(errno));
-            goto out;
+                fprintf (stderr,strerror(errno));
+                goto out;
         }
         
         fd = open(file_name, O_WRONLY | O_CREAT);
         if(fd == -1)
         {
-            fprintf (stderr, "\t%s\n", strerror(errno));
-            ret = -1;
-            goto out;
+                fprintf (stderr, "\t%s\n", strerror(errno));
+                ret = -1;
+                goto out;
         }
          
         printf ("\tSaving the file...\n");
@@ -33,27 +33,27 @@ int get_doc_from_server (int client_fd, char * file_name, char * dest)
             
             if (number_of_bytes_read < 0)
             {
-                ret = -1;
-                break;
+                    ret = -1;
+                    break;
             }
             if (number_of_bytes_read == 0)
             {
-                ret = 0;
-                break;
+                    ret = 0;
+                    break;
             }
             ret = write (fd, buffer, number_of_bytes_read);
             if (ret <= 0)
             {
-                ret = -1;
-                fprintf (stderr, "\tERROR: %s\n", strerror(errno));
-                goto out;
+                    ret = -1;
+                    fprintf (stderr, "\tERROR: %s\n", strerror(errno));
+                    goto out;
             }
         }
         
         
         out:
             if (fd >= 0) {
-                close (fd);
+                    close (fd);
             }
             free (buffer);
             return ret;
