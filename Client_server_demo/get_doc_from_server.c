@@ -1,16 +1,16 @@
 #include "socket_header.h"
 
 /*This will recieve the file from the server*/
-int get_doc_from_server (int client_fd, char * file_name, char * dest)
+int get_doc_from_server (int client_fd, char* file_name)
 {
         int ret                     =       -1;
         int number_of_bytes_read    =       0;
         int fd;
         char * buffer;
         
-        buffer = (char*) malloc (1000);
+        buffer = (char*) malloc (1024);
         
-        ret = chdir(dest);
+        ret = chdir(dest_dir);
         if(ret == -1)
         {
                 fprintf (stderr,strerror(errno));
@@ -29,25 +29,31 @@ int get_doc_from_server (int client_fd, char * file_name, char * dest)
         /*Reads from the server and writes to file*/
         while (1)
         {
-            number_of_bytes_read = read (client_fd, buffer, 1000);
-            
-            if (number_of_bytes_read < 0)
-            {
-                    ret = -1;
-                    break;
-            }
-            if (number_of_bytes_read == 0)
-            {
-                    ret = 0;
-                    break;
-            }
-            ret = write (fd, buffer, number_of_bytes_read);
-            if (ret <= 0)
-            {
-                    ret = -1;
-                    fprintf (stderr, "\tERROR: %s\n", strerror(errno));
-                    goto out;
-            }
+                number_of_bytes_read = read (client_fd, buffer, 1024);
+                if (number_of_bytes_read <= 0)
+                {
+                        ret = -1;
+                        break;
+                }
+                if (number_of_bytes_read < 1024)
+                {
+                        ret = write (fd, buffer, number_of_bytes_read);
+                        if (ret < 0)
+                        {
+                                ret = -1;
+                                fprintf (stderr, "\tERROR: %s\n", strerror(errno));
+                                goto out;
+                        }
+                        ret = 0;
+                        break;
+                }
+                ret = write (fd, buffer, number_of_bytes_read);
+                if (ret < 0)
+                {
+                        ret = -1;
+                        fprintf (stderr, "\tERROR: %s\n", strerror(errno));
+                        goto out;
+                }
         }
         
         

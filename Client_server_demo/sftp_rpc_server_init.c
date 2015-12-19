@@ -1,11 +1,11 @@
 #include "socket_header.h"
 #define BACK_LOG 5
 
-int sftp_rpc_server_init (int port)
+void* sftp_rpc_server_init (void* port_id)
 {
         int ret             =       -1;
         int socket_fd       =       0;
-        
+        int port            =       *((int *) port_id);
         struct sockaddr_in server_addr;
         
         /*Creating the socket*/
@@ -40,5 +40,5 @@ int sftp_rpc_server_init (int port)
         ret = socket_fd;
         
         out:
-            return ret;
+            return (void*) ret;
 }

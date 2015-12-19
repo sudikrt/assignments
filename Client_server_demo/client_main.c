@@ -41,8 +41,8 @@ int main (int argc, char * argv [])
                                 strcpy (server_name, optarg);
                                 break;
                         case 'd':
-                                destination = (char*) malloc (strlen (optarg + 1));
-                                strcpy (destination, optarg);
+                                dest_dir = (char*) malloc (strlen (optarg + 1));
+                                strcpy (dest_dir, optarg);
                                 break;
                         case -1:
                                 break;
@@ -61,11 +61,7 @@ int main (int argc, char * argv [])
         printf ("\tConnection Success!!\n");
 
         /*Client request for the particular named file*/
-        ret = request (socket_fd, file_name, destination);
-        if (ret < 0)
-        {
-                goto out;
-        }
+        ret = request (socket_fd);
         
         ret = 0;
         out:

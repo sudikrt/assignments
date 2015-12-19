@@ -12,6 +12,9 @@
 
 #define BACK_LOG 5
 
+/*Enumeration for request_type*/
+enum request_type {read_request = 30, write_request = 31};
+
 /*Enumeration for error list*/
 enum err_list {file_not_exist = 20, read_fail = 21, write_fail = 22,
                 s_accept = 23, file_exist = 24};
@@ -19,8 +22,31 @@ enum err_list {file_not_exist = 20, read_fail = 21, write_fail = 22,
 /*Stat structure variable*/
 struct stat st;
 
+/*External Variable for error number*/
 extern int errno;
 
+/*Structure for the client request*/
+typedef struct client_request
+{
+        int type;
+        int client_fd;
+        char* buf;
+        void (*operation) (void*, int);
+} C_Request;
+
+/*Structure for the request queue*/
+struct client_queue
+{
+        C_Request c_req;
+        struct client_queue* next;
+};
+typedef struct client_queue C_Queue;
 
 
-  
+void* sftp_rpc_server_init (void* port_id);
+void* delete_queue ();
+
+C_Queue* head;
+
+char* exp_dir;
+char* dest_dir;

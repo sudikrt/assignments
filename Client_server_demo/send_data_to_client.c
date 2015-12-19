@@ -13,7 +13,7 @@ void handler (int signal_number)
 }
 
 /*This will send the file to client*/
-int send_data_to_client (int client_fd, char * file_name, char * p_dir)
+int send_data_to_client (int client_fd, char * file_name)
 {
         int ret = -1;
         int fd;
@@ -27,9 +27,9 @@ int send_data_to_client (int client_fd, char * file_name, char * p_dir)
         /*Assigning the client_fd tp sig to handle the signal gracefully*/
         sig = client_fd;
         
-        buffer = (char *) malloc (1000);
+        buffer = (char *) malloc (1024);
         
-        ret = chdir(p_dir);
+        ret = chdir(exp_dir);
         if (ret == -1)
         {
                 fprintf (stderr, "\tERROR: %s\n", strerror(errno));
@@ -52,10 +52,10 @@ int send_data_to_client (int client_fd, char * file_name, char * p_dir)
         /*It will write the file data to socket and send it to client*/
         while(1)
         {
-                number_of_bytes = read (fd, buffer, 1000);
+                number_of_bytes = read (fd, buffer, 1024);
                 if(number_of_bytes == 0)
                 {
-                        close (client_fd);
+                        number_of_bytes = write (client_fd, buffer, number_of_bytes);
                         break;
                 }
                 number_of_bytes = write (client_fd, buffer, number_of_bytes);

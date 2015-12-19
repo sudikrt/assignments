@@ -3,10 +3,10 @@
 
 extern int errno;
 /*This check the file exists in export folder if exists return file_exists*/
-int check_file_exist (char * file_name, char * p_dir)
+int check_file_exist (char * file_name)
 {
         int ret = -1;
-        ret = chdir(p_dir);
+        ret = chdir(exp_dir);
         if (ret == -1)
         {
                 fprintf (stderr, "\t%s\n", strerror(errno));
