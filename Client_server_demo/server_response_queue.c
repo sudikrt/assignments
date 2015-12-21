@@ -95,30 +95,31 @@ void add_queue (void* arg)
 /*Function to remove the request from the queue and process its request*/
 void* delete_queue ()
 {
-        C_Queue *previous;
+        C_Queue *previous ;
         C_Request request;
         while (1){
-                if(head -> next == head)
+                if(head -> next != head)
                 {
-                        continue;
+                        /*Removes the request on the top of the queue*/
+                        previous = head -> next;
+                        head -> next = previous -> next;
+                        request = previous -> c_req;
+                        
+                        bzero (previous, sizeof(previous));
+                        /*Calls the request handler based of the type of 
+                         * the request*/
+                        switch (request.type)
+                        {
+                                case read_request:
+                                                request.operation (request.buf, 
+                                                                request.client_fd);
+                                                break;
+                                case write_request:
+                                                request.operation (request.buf, 
+                                                                request.client_fd);
+                                                break;
+                        }
                 }
-                previous = head;
-                head = head -> next;
-                request = previous -> c_req;
-                
-                /*Calls the request handler based of the type of the request*/
-                switch (request.type)
-                {
-                        case read_request:
-                                        request.operation (request.buf, 
-                                                        request.client_fd);
-                                        break;
-                        case write_request:
-                                        request.operation (request.buf, 
-                                                        request.client_fd);
-                                        break;
-                }
-                free (previous);
         }
 }
 

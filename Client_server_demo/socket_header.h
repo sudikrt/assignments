@@ -42,11 +42,13 @@ struct client_queue
 };
 typedef struct client_queue C_Queue;
 
-
+/*Function Decleration*/
 void* sftp_rpc_server_init (void* port_id);
 void* delete_queue ();
 
+/*Variable declaration of the queue*/
 C_Queue* head;
 
+/*Variable declaration of the export directory*/
 char* exp_dir;
 char* dest_dir;

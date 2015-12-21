@@ -30,7 +30,7 @@ int get_doc_from_server (int client_fd, char* file_name)
         while (1)
         {
                 number_of_bytes_read = read (client_fd, buffer, 1024);
-                if (number_of_bytes_read <= 0)
+                if (number_of_bytes_read < 0)
                 {
                         ret = -1;
                         break;
