@@ -1,10 +1,18 @@
 #include "socket_header.h"
 
-void sftp_rpc_server_start (int socket_fd)
+/*
+ * This function accept the incoming client connection
+ * Input:
+ *      int socket_fd   :       Specifies the connection identifer of server 
+ *                              socket.
+ * Output:
+ *      int             :       On success client_fd is returned 
+ *                              else the connection unsuccessful.
+ * */
+int sftp_rpc_server_start (int socket_fd)
 {
         int ret             =       -1;
         int client_fd       =       0;
-        //int socket_fd       =       *((int*) sock_fd);
 
         client_fd = accept (socket_fd, (struct sockaddr *) NULL, NULL);
 

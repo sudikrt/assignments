@@ -1,6 +1,12 @@
 #include "socket_header.h"
 
-/*Client requesting the server for the file*/
+/*
+ * Client requesting the server for the file
+ * Input:
+ *      int     :       specifies the connection identifier.
+ * Output:
+ *      int     :       Specifies the success or failure.
+ * */
 int request (int client_fd)
 {
         int ret         =       -1;
@@ -12,7 +18,8 @@ int request (int client_fd)
         char* extra;
         char* buffer;
         char * file_name;
-        
+
+        /* Allocate the memory. */
         file_name = (char*) calloc (1, 500);
         data = (char*) calloc (1, 100);
         extra = (char*) calloc (1, 100); 
@@ -21,7 +28,7 @@ int request (int client_fd)
         while (1)
         {
         menu:
-              printf ("\tEnter 1. Read\n \t2. Write\n");
+                printf ("\tPress \n\t1. Read\n \t2. Write\n\t");
                 scanf ("%d", &value);
                 
                 switch (value)
@@ -52,6 +59,8 @@ int request (int client_fd)
                                         printf ("\tSome error ocurred\n");
                                         goto menu;
                                 }
+                                /* Calls this function to retrive the data from
+                                 * server. */
                                 get_data_from_server (client_fd, file_name);
                                 break;
                         case 2:

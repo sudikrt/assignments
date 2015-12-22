@@ -1,10 +1,14 @@
 #include "socket_header.h"
 #include <signal.h>
 
-/*Handling the signal*/
+/* Handling the signal */
 int sig = 0;
 int new_ret = 0;
-
+/* Signal Handler fuction which will be invoked when the client 
+ * closes the connection abruptly
+ * Input :
+ *      int signal_numebr       : specifies the signal number
+ * */
 void handler (int signal_number)
 {
         new_ret = -1;
@@ -12,23 +16,33 @@ void handler (int signal_number)
         return ;
 }
 
-/*This will send the file to client*/
+/*This will send the file to client
+ * Input:
+ *      int client_fd   :       Specifies the connection identifier
+ *      char* file_name :       Specifies the file_name that is sent to client
+ * 
+ * Output:
+ *      int             :       Specifing success or failure
+ * */
 int send_data_to_client (int client_fd, char * file_name)
 {
         int ret = -1;
         int fd;
         char * buffer;
         int number_of_bytes = 0;
+        struct stat stat_var;
         
         struct sigaction sa;
         memset (&sa, 0, sizeof (sa));
         sa.sa_handler = &handler;
         
-        /*Assigning the client_fd tp sig to handle the signal gracefully*/
+        /* Assigning the client_fd tp sig to handle the signal gracefully */
         sig = client_fd;
-        
+
+        /* Allocating the space of buffer */
         buffer = (char *) malloc (1024);
-        
+
+        /* Change the current directory to the export directory */
         ret = chdir(exp_dir);
         if (ret == -1)
         {
@@ -36,7 +50,8 @@ int send_data_to_client (int client_fd, char * file_name)
                 ret = file_not_exist;
                 goto out;   
         }
-        
+
+        /* Opens the file in read_only mode */
         fd = open(file_name, O_RDONLY);
         if(fd == -1)
         {
@@ -47,20 +62,36 @@ int send_data_to_client (int client_fd, char * file_name)
         
         /*Waiting for the signal*/
         sigaction (SIGPIPE, &sa, NULL);
+
+        /*Read the size of the file and send it to the client */
+        ret = stat(file_name, &stat_var);
+        memset (buffer, 0 ,1024);
+        sprintf (buffer, "%ld", stat_var.st_size);
+        ret = write (client_fd, buffer, 1024);
+        if (ret < 0)
+        {
+                ret = -1;
+                fprintf (stderr, "\tERROR: %s\n", strerror(errno));
+                goto out;
+        }
         
         printf ("\tSending\n");
         /*It will write the file data to socket and send it to client*/
         while(1)
         {
                 number_of_bytes = read (fd, buffer, 1024);
-                if(number_of_bytes == 0)
+                if(number_of_bytes < 0)
                 {
-                        number_of_bytes = write (client_fd, buffer, number_of_bytes);
-                        break;
+                        ret = -1;
+                        fprintf (stderr, "\tERROR: %s\n", strerror(errno));
+                        goto out;
                 }
                 number_of_bytes = write (client_fd, buffer, number_of_bytes);
-                
                 if (number_of_bytes == 0)
+                {
+                        break;
+                }
+                if (number_of_bytes < 0)
                 {
                         ret = -1;
                         fprintf (stderr, "\tERROR: %s\n", strerror(errno));

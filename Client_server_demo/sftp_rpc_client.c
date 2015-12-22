@@ -1,6 +1,14 @@
 #include "socket_header.h"
-
-int sftp_rpc_client (int port, char * server_name)
+/*
+ * This function initiates the client connection
+ * Input:
+ *      int port                :       Specifies the port to which it connects.
+ *      char* server_name       :       Specifies the host/server machine.
+ * Output:
+ *      int                     :       Specifies the creaion of server socket
+ *                                      is successful or not.
+ * */
+int sftp_rpc_client (int port, char* server_name)
 {
         int ret             =       -1;
         int socket_fd       =       0;

@@ -1,6 +1,13 @@
 #include "socket_header.h"
 #define BACK_LOG 5
-
+/*
+ * This is a thread function which initates the server connection
+ * Input :
+ *      void* port_id   :       Specifies the port id.
+ * Output :
+ *      int             :       specifies the socket_id if the connection
+ *                              was successful otherwise -1 for unsuccessful.
+ * */
 void* sftp_rpc_server_init (void* port_id)
 {
         int ret             =       -1;
@@ -16,7 +23,7 @@ void* sftp_rpc_server_init (void* port_id)
                 ret = -1;
                 goto out;
         }
-        printf ("\tInitilizing\n");
+        printf ("\tInitilizing. . .\n");
         
         server_addr.sin_family = AF_INET;
         server_addr.sin_addr.s_addr = htonl (INADDR_ANY);
@@ -40,5 +47,5 @@ void* sftp_rpc_server_init (void* port_id)
         ret = socket_fd;
         
         out:
-            return (void*) ret;
+            return  (void*) ret;
 }

@@ -1,5 +1,16 @@
 #include "socket_header.h"
-
+/*
+ * this is the main fuction where client starts and initializes the socket
+ * for the connection
+ * Input :
+ *      Inputs are given through command line in which 
+ *      -p      :       Specifies the port number.
+ *      -s      :       Specifies the host name.
+ *      -d      :       Specifies the export directory where the recieved files
+ *                      are stored.
+ * Output:
+ *      int     :       return value.
+ * */
 int main (int argc, char * argv [])
 {
         int ret             =       -1;
@@ -9,8 +20,8 @@ int main (int argc, char * argv [])
         char * destination;
         char * file_name;
         int next_option;
-        
         struct sockaddr_in server_addr;
+        
         /*Command line options*/
         const char* const short_option = "s:p:f:d:";
 
@@ -21,7 +32,6 @@ int main (int argc, char * argv [])
                 { "destination",1, NULL, 'd'},
                 { "NULL",       0, NULL,  0 } 
         };
-        printf ("Thread Id at main %d\n", pthread_self ());
         do
         {
                 next_option = getopt_long (argc, argv, short_option, 
