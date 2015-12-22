@@ -32,7 +32,7 @@ int get_doc_from_server (int client_fd, char* file_name)
         }
 
         /* Opens the file for writing the recieved data. */
-        fd = open(file_name, O_WRONLY | O_CREAT);
+        fd = open(file_name, O_TRUNC | O_WRONLY | O_CREAT);
         if(fd == -1)
         {
                 fprintf (stderr, "\t%s\n", strerror(errno));
@@ -68,7 +68,6 @@ int get_doc_from_server (int client_fd, char* file_name)
                         fprintf (stderr, "\tERROR: %s\n", strerror(errno));
                         goto out;
                 }
-
                 ret = stat(file_name, &stat_var);
 
                 if(stat_var.st_size == len)
