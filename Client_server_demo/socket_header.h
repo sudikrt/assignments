@@ -14,7 +14,7 @@
 #define BACK_LOG 5
 
 /*Enumeration for request_type*/
-enum request_type {read_request = 30, write_request = 31};
+enum request_type {read_request = 30, write_request = 31, quit = 32};
 
 /*Enumeration for error list*/
 enum err_list {file_not_exist = 20, read_fail = 21, write_fail = 22,

@@ -97,7 +97,7 @@ int main (int argc, char* argv [])
                 printf ("\tClient Connected\n");
                     
                 /*Giving the service to client*/
-                ret = server_response (client_fd);
+                server_response (client_fd);
         }
         
         ret = 0;

@@ -45,6 +45,9 @@ void server_response (int client_fd)
                                                 c_request.operation = 
                                                         (void*) write_handler;
                                                 break;
+                                case quit:
+                                        goto out;
+                                        break;
                         }
                         /*Lockes the mutex*/
                         pthread_mutex_lock(&lock);
@@ -55,7 +58,10 @@ void server_response (int client_fd)
                         pthread_mutex_unlock(&lock);
 
                 }
-        }
 
-        return ;
+        }
+        out:
+                close (client_fd);
+                printf ("\tClient had disconnected\n");
+                return ;
 }

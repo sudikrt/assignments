@@ -28,7 +28,7 @@ int request (int client_fd)
         while (1)
         {
         menu:
-                printf ("\tPress \n\t1. Read\n \t2. Write\n\t");
+                printf ("\tPress \n\t1. Read\n \t2. Write\n \t3. Quit\n \t");
                 scanf ("%d", &value);
                 
                 switch (value)
@@ -40,8 +40,9 @@ int request (int client_fd)
                                 printf ("\tEnter the file name:");
                                 scanf ("%s", file_name);
                                 len = strlen (file_name);
-                                memset (extra, 0, sizeof (data));
-                                memset (data, 0, sizeof (data));
+                                
+                                memset (extra, 0, 100);
+                                memset (data, 0, 100);
                                 sprintf (extra, "%d", 0);
                                 sprintf (data, "%d", len);
 
@@ -66,6 +67,16 @@ int request (int client_fd)
                         case 2:
                                 
                                 break;
+                        case 3:
+                                memset (buffer, 0, 1024);
+                                sprintf (buffer, "%d", quit);
+                                ret = write (client_fd, buffer, 1024);
+                                if (ret < 0)
+                                {
+                                        printf ("\tSome error ocurred\n");
+                                        goto menu;
+                                }
+                                goto out;
                         default:
                                 ret = 0;
                                 goto out;
@@ -75,5 +86,6 @@ int request (int client_fd)
         ret = 0;
 
         out:
-            return ret;
+                close (client_fd);
+                return ret;
 }
