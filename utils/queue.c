@@ -7,14 +7,14 @@
  * Output:
  *      queue_t obj     :       reference for the initalized queue.
  * */
-queue_t queue_new()
+queue_t* queue_new ()
 {
         /* Allocating the memory and initialize the values*/
-        queue_t obj = (queue_t*) calloc (1, sizeof (queue_t));
+        queue_t* obj = (queue_t*) calloc (1, sizeof (queue_t));
         pthread_mutex_init (&obj -> queue_mutex, NULL);
         obj -> head = NULL;
         obj -> tail = NULL;
-        obj.max = 0;
+        obj -> max = 0;
         return obj;
 }
 
@@ -65,28 +65,33 @@ int queue_put (queue_t* obj_queue , void* arg)
 {
         int ret         =        -1;
         q_node_t* obj_q_node;
-        
+
         /* Allocate the new node */
         obj_q_node = (q_node_t*) calloc (1, sizeof (q_node_t));
         obj_q_node -> c_request = arg;
         obj_q_node -> next = NULL;
+
         /*Lock the mutex*/
-        pthread_mutex_lock(&obj -> queue_mutex);
+        pthread_mutex_lock (&obj_queue -> queue_mutex);
+
         /* If Queue is empty */
         if (obj_queue -> head == NULL && obj_queue -> tail == NULL)
         {
                 obj_queue -> head = obj_queue -> tail = obj_q_node;
-                goto out;
-        } 
-        obj_queue -> tail -> next = obj_q_node;
-        obj_queue -> tail = obj_q_node;
-        
-out:
-        obj_queue -> max++;
+                obj_queue -> max++;
+        }
+        else
+        {
+                obj_queue -> tail -> next = obj_q_node;
+                obj_queue -> tail = obj_q_node;
+                obj_queue -> max++;
+        }
+
         /* Unlock the mutex */
-        pthread_mutex_unlock (&obj -> queue_mutex);
-        
+        pthread_mutex_unlock (&obj_queue -> queue_mutex);
+        printf ("\t Inserted\n");
         ret = 0;
+        out:
                 return ret;
 }
 /*
@@ -97,37 +102,43 @@ out:
  * Output:
  *      int                     :       Specifies the successful removal of data.
  * */
-int queque_get (queue_t* obj_queue, queue_cbk_t arg)
+int queue_get (queue_t* obj_queue, queue_cbk_t arg)
 {
         int ret         =        -1;
         void* data;
         q_node_t* node;
         
         /* Lock the mutex */
-        pthread_mutex_lock(&obj -> queue_mutex);
+        pthread_mutex_lock(&obj_queue -> queue_mutex);
+        if (obj_queue -> head == NULL && obj_queue -> tail == NULL)
+        {
+                ret = -1;
+                pthread_mutex_unlock (&obj_queue -> queue_mutex);
+                goto out;
+        }
         
         if (obj_queue -> head == obj_queue -> tail && obj_queue -> head != NULL)
         {
                 node = obj_queue -> head;
                 obj_queue -> head = NULL;
                 obj_queue -> tail = NULL;
-                goto process;
+                obj_queue -> max--;
         }
-        node = obj_queue -> head;
-        obj_queue -> head = obj_queue -> head -> next;
-        
-process:
-        obj_queue -> max--;
+        else
+        {
+                node = obj_queue -> head;
+                obj_queue -> head = obj_queue -> head -> next;
+                obj_queue -> max--;
+        }
         /* Unlock the mutex */
-        pthread_mutex_unlock (&obj -> queue_mutex);
+        pthread_mutex_unlock (&obj_queue -> queue_mutex);
         
         data = node -> c_request;
         
         ret = arg (data);
         
         free (node);
-        return ret;
+
+        out:
+                return ret;
 }
-
-
-
