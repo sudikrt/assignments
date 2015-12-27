@@ -1,9 +1,13 @@
-sudo_ftp_server: server_main.o sftp_rpc_server_init.o sftp_rpc_server_start.o queue.o server_response_queue.o check_file_exist.o read_handler.o send_data_to_client.o sudo_ftp_client
-	gcc -o sudo_ftp_server server_main.o sftp_rpc_server_init.o sftp_rpc_server_start.o queue.o server_response_queue.o check_file_exist.o read_handler.o send_data_to_client.o -lpthread 
+sudo_ftp_server: server_main.o sftp_rpc_server_init.o sftp_rpc_server_start.o queue.o server_response_queue.o handler.o service_queue.o check_file_exist.o read_handler.o send_data_to_client.o sudo_ftp_client
+	gcc -o sudo_ftp_server server_main.o sftp_rpc_server_init.o sftp_rpc_server_start.o queue.o server_response_queue.o handler.o service_queue.o check_file_exist.o read_handler.o send_data_to_client.o -lpthread 
 sudo_ftp_client: socket_header.h client_main.o sftp_rpc_client.o client_request.o get_data_from_server.o get_doc_from_server.o
 	gcc -o sudo_ftp_client client_main.o sftp_rpc_client.o client_request.o get_data_from_server.o get_doc_from_server.o -lpthread
-queue.o: queue.c
-	gcc -g -c queue.c
+queue.o: utils/queue.c
+	gcc -g -c utils/queue.c -lpthread
+handler.o: handler.c
+	gcc -g -c handler.c
+service_queue.o: service_queue.c
+	gcc -g -c service_queue.c -lpthread
 read_handler.o: read_handler.c
 	gcc -g -c read_handler.c
 get_data_from_server.o: get_data_from_server.c

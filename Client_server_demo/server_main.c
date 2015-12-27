@@ -1,4 +1,4 @@
-#include "queue.h"
+#include "socket_header.h"
 
 /* This function will initialize the mutex and condition variables*/
 void initialize_flag ()
@@ -32,10 +32,9 @@ int main (int argc, char* argv [])
 
         struct sockaddr_in client_addr;
 
-        /*Declare and initialze the Head of the queue*/
-        head = (C_Queue*) malloc (sizeof(C_Queue));
-        head->next = head;
-
+        /* Get the new queue and it will be initialized */
+        queue_obj = queue_new ();
+        
         /* Initialize the condition and mutex variables*/
         initialize_flag ();
         
@@ -82,7 +81,7 @@ int main (int argc, char* argv [])
         }
 
         /*Thread to servrice the request the each client_request*/
-        pthread_create (&t_id, NULL, &delete_queue, NULL);
+        pthread_create (&t_id, NULL, &service_queue, queue_obj);
 
         while (1)
         {
@@ -97,7 +96,7 @@ int main (int argc, char* argv [])
                 printf ("\tClient Connected\n");
                     
                 /*Giving the service to client*/
-                server_response (client_fd);
+                server_response (client_fd, queue_obj);
         }
         
         ret = 0;
