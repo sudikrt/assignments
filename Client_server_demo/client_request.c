@@ -60,12 +60,33 @@ int request (int client_fd)
                                         printf ("\tSome error ocurred\n");
                                         goto menu;
                                 }
-                                /* Calls this function to retrive the data from
-                                 * server. */
-                                get_data_from_server (client_fd, file_name);
+                                
+                                memset (buffer, 0, 1024);
+                                ret = read (client_fd, buffer, 1024);
+                                if (ret < 0)
+                                {
+                                        printf ("\tSome error ocurred\n");
+                                        goto out;
+                                }
+                                
+                                memset (data, 0, 100);
+                                memcpy (data, buffer, 2);
+                                len = atoi (data);
+                                if (len == queue_ful)
+                                {
+                                        printf ("\tTo many requests try later\n");
+                                        goto menu;
+                                }
+                                if (len == queue_nful)
+                                {
+                                        /* Calls this function to retrive the
+                                         * data from server.
+                                         * */
+                                        printf ("\tRequest in the queue..processing\n");
+                                        get_data_from_server (client_fd, file_name);
+                                }
                                 break;
                         case 2:
-                                
                                 break;
                         case 3:
                                 memset (buffer, 0, 1024);
@@ -87,5 +108,8 @@ int request (int client_fd)
 
         out:
                 close (client_fd);
+                free (buffer);
+                free (extra);
+                free (data);
                 return ret;
 }

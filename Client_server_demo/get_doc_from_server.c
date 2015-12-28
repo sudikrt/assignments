@@ -15,12 +15,10 @@ int get_doc_from_server (int client_fd, char* file_name)
         long len                      =       0;
         int fd;
         char* buffer;
-        char* data;
         struct stat stat_var;
 
         /* Allocating the memory. */
-        buffer = (char*) malloc (1024);
-        data = (char*) calloc (1,1024);
+        buffer = (char*) calloc (1,1024);
 
         /* Changes the current directory to the user defined export 
          * directory. */

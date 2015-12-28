@@ -30,11 +30,10 @@ void server_response (int client_fd, queue_t* queue_ref)
         char* data;
         int ret         =       0;
         int res         =       0;
-        C_Request* c_request = (C_Request*) calloc (1, sizeof (C_Request));
-        c_request -> buf = (char*) calloc (1, 1024);
+        C_Request c_request;
 
         buffer = (char*) calloc (1,1024);
-        data = (char*) calloc (1,100);
+        data = (char*) calloc (1,1024);
 
         while (1)
         {
@@ -42,39 +41,68 @@ void server_response (int client_fd, queue_t* queue_ref)
                 if(ret != 0)
                 {
                         /*Read the type of the request from the client request*/
+                        memset (data, 0, 1024);
                         memcpy (data, buffer, 2);
                         res = atoi (data);
-                        
                         switch (res)
                         {
                                 case read_request:
-                                                c_request -> type = read_request;
-                                                c_request -> buf = buffer;
-                                                c_request -> client_fd = client_fd;
-                                                c_request -> operation = 
+                                                c_request.type = read_request;
+                                                c_request.buf = buffer;
+                                                c_request.client_fd = client_fd;
+                                                c_request.operation = 
                                                         (void*) read_handler;
                                                 break;
                                 case write_request:
-                                                c_request -> type = write_request;
-                                                c_request -> buf = buffer;
-                                                c_request -> client_fd = client_fd;
-                                                c_request -> operation = 
+                                                c_request.type = write_request;
+                                                c_request.buf = buffer;
+                                                c_request.client_fd = client_fd;
+                                                c_request.operation = 
                                                         (void*) write_handler;
                                                 break;
                                 case quit:
                                         goto out;
                                         break;
                         }
-
-                        /*Calles the function to add the client_request to the 
-                         * queue */
-                        ret = queue_put (queue_ref, c_request);
-                        set_thread_flag (1);
+                        /* Check whether the queue is full or not 
+                         * if queue is full then send feedback to client that
+                         * client is full otherwise the request is added to the
+                         * queue
+                         * */
+                red:    if (queue_full (queue_ref) == 1)
+                        {
+                                memset (data, 0, 1024);
+                                sprintf (data, "%d", queue_ful);
+                                ret = write (client_fd, data, 1024);
+                                if (ret < 0)
+                                {
+                                        printf ("\tSome error ocurred\n");
+                                        goto red;
+                                }
+                        }
+                        else
+                        {
+                                memset (data, 0, 1024);
+                                sprintf (data, "%d", queue_nful);
+                                ret = write (client_fd, data, 1024);
+                                if (ret < 0)
+                                {
+                                        printf ("\tSome error ocurred\n");
+                                        goto red;
+                                }
+                                /*Calles the function to add the client_request to the 
+                                 * queue */
+                                ret = queue_put (queue_ref, &c_request);
+                                printf ("\tRequest is inserted\n");
+                                set_thread_flag (1);
+                        }
                 }
 
         }
         out:
                 close (client_fd);
                 printf ("\tClient had disconnected\n");
+                free (data);
+                free (buffer);
                 return ;
 }

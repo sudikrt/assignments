@@ -94,8 +94,8 @@ int queue_put (queue_t* obj_queue , void* arg)
         }
 
         /* Unlock the mutex */
-        pthread_mutex_unlock (&obj_queue -> queue_mutex);;
-        printf ("\t Inserted\n");
+        pthread_mutex_unlock (&obj_queue -> queue_mutex);
+
         ret = 0;
         out:
                 return ret;
@@ -142,7 +142,7 @@ int queue_get (queue_t* obj_queue, queue_cbk_t arg)
         data = node -> c_request;
         
         ret = arg (data);
-        
+
         free (node);
 
         out:

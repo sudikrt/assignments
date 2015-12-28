@@ -1,7 +1,4 @@
 #include "socket_header.h"
-#include <errno.h>
-
-extern int errno;
 /*
  * This check the file exists in export folder if exists return file_exists
  * Input:
