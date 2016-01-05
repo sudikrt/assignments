@@ -62,16 +62,9 @@ int main (int argc, char * argv [])
         }while (next_option != -1);
         
         /*Initiate the client connection*/
-        socket_fd = sftp_rpc_client (port, server_name);
-        if(socket_fd < 0)
-        {
-                ret = -1;
-                goto out;
-        }
-        printf ("\tConnection Success!!\n");
 
         /*Client request for the particular named file*/
-        ret = request (socket_fd);
+        ret = request (port, server_name);
         
         ret = 0;
         out:

@@ -70,9 +70,12 @@ int queue_put (queue_t* obj_queue , void* arg)
         int ret         =        -1;
         q_node_t* obj_q_node;
 
+        C_R a;
+        a = *(C_R*) arg;
+        printf ("\tInside Qu put before insertion  %s\n", a.buf);
         /* Allocate the new node */
         obj_q_node = (q_node_t*) calloc (1, sizeof (q_node_t));
-        obj_q_node -> c_request = (void*) calloc (1, sizeof (void));
+        obj_q_node -> c_request = (void*) calloc (1, sizeof (arg));
         obj_q_node -> c_request = arg;
 
         obj_q_node -> next = NULL;
@@ -92,7 +95,8 @@ int queue_put (queue_t* obj_queue , void* arg)
                 obj_queue -> tail = obj_q_node;
                 obj_queue -> max++;
         }
-
+        a = *(C_R*)obj_queue -> head -> c_request;
+        printf ("\tInside Qu put after insertion  %s\n", a.buf);
         /* Unlock the mutex */
         pthread_mutex_unlock (&obj_queue -> queue_mutex);
 
@@ -113,7 +117,7 @@ int queue_get (queue_t* obj_queue, queue_cbk_t arg)
         int ret         =        -1;
         void* data;
         q_node_t* node;
-        
+        C_R a;
         /* Lock the mutex */
         pthread_mutex_lock(&obj_queue -> queue_mutex);
         if (obj_queue -> head == NULL && obj_queue -> tail == NULL)
@@ -125,6 +129,8 @@ int queue_get (queue_t* obj_queue, queue_cbk_t arg)
         
         if (obj_queue -> head == obj_queue -> tail && obj_queue -> head != NULL)
         {
+                a = *(C_R*)obj_queue -> head -> c_request;
+                printf ("\tInside the Qu get if 1 :%s\n", a.buf);
                 node = obj_queue -> head;
                 obj_queue -> head = NULL;
                 obj_queue -> tail = NULL;
@@ -132,6 +138,8 @@ int queue_get (queue_t* obj_queue, queue_cbk_t arg)
         }
         else
         {
+                a = *(C_R*)obj_queue -> head -> c_request;
+                printf ("\tInside the Qu get if Many : %s\n", a.buf);
                 node = obj_queue -> head;
                 obj_queue -> head = obj_queue -> head -> next;
                 obj_queue -> max--;
@@ -140,6 +148,9 @@ int queue_get (queue_t* obj_queue, queue_cbk_t arg)
         pthread_mutex_unlock (&obj_queue -> queue_mutex);
         
         data = node -> c_request;
+        
+        //a = *((C_R*) node -> c_request);
+        //printf ("\tQuee %d\n", a.type);
         
         ret = arg (data);
 

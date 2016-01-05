@@ -6,7 +6,7 @@ void* service_queue(void* arg)
         queue_t* object = (queue_t*) arg;
         queue_cbk_t cbk_obj;
         int ret = 0;
-        while (1){
+        while (1) {
                 /* Lock the mutex for accessing the flag value. */
                 pthread_mutex_lock (&thread_flag_mutex);
                 while (!thread_flag)
@@ -29,6 +29,7 @@ void* service_queue(void* arg)
                 {
                         /* Set the flag to zero if the queue was empty 
                          * for blocking the thread*/
+                        printf ("Sleeping\n");
                         set_thread_flag (0);
                 }
         }

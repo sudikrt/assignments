@@ -41,11 +41,19 @@ typedef struct client_request
 
 queue_t* queue_obj;
 
+typedef struct service_obj
+{
+        int client_fd;
+        queue_t* obj;
+} service_obj_t;
+
 /* Function Decleration for initilization of server */
 void* sftp_rpc_server_init (void* port_id);
 
 /* Function for processing the client_request */
 void* service_queue (void* arg);
+
+//void* server_response (void* arg);
 
 /* Function for handling the read request */ 
 void read_handler (void* arg, int client_fd);

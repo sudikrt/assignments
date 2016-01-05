@@ -19,7 +19,7 @@ sftp_rpc_server_start.o: sftp_rpc_server_start.c
 server_main.o: server_main.c
 	gcc -g -c server_main.c -lpthread
 server_response_queue.o: server_response_queue.c
-	gcc -g -c server_response_queue.c
+	gcc -g -c server_response_queue.c -lpthread
 check_file_exist.o: check_file_exist.c
 	gcc -g -c check_file_exist.c
 send_data_to_client.o: send_data_to_client.c socket_header.h

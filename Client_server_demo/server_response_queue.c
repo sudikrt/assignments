@@ -25,6 +25,7 @@ void set_thread_flag (int flag_value)
  *      int client_fd   :       specifies the connection identifier
  * */
 void server_response (int client_fd, queue_t* queue_ref)
+//void* server_response (void* arg)
 {
         char* buffer;
         char* data;
@@ -32,11 +33,14 @@ void server_response (int client_fd, queue_t* queue_ref)
         int res         =       0;
         C_Request c_request;
 
+        /*service_obj_t* obj_service = (service_obj_t*) arg;
+        int client_fd = obj_service -> client_fd;
+        queue_t* queue_ref = obj_service -> obj;
+        */
         buffer = (char*) calloc (1,1024);
         data = (char*) calloc (1,1024);
-
-        while (1)
-        {
+        //while (1)
+        //{
                 ret = read (client_fd, buffer, 1024);
                 if(ret != 0)
                 {
@@ -44,11 +48,13 @@ void server_response (int client_fd, queue_t* queue_ref)
                         memset (data, 0, 1024);
                         memcpy (data, buffer, 2);
                         res = atoi (data);
+                        
                         switch (res)
                         {
                                 case read_request:
                                                 c_request.type = read_request;
                                                 c_request.buf = buffer;
+
                                                 c_request.client_fd = client_fd;
                                                 c_request.operation = 
                                                         (void*) read_handler;
@@ -93,16 +99,17 @@ void server_response (int client_fd, queue_t* queue_ref)
                                 /*Calles the function to add the client_request to the 
                                  * queue */
                                 ret = queue_put (queue_ref, &c_request);
-                                printf ("\tRequest is inserted\n");
+                                printf ("\tClient : %d's request is inserted\n",
+                                                                client_fd);
                                 set_thread_flag (1);
                         }
                 }
 
-        }
+        //}
         out:
-                close (client_fd);
-                printf ("\tClient had disconnected\n");
-                free (data);
-                free (buffer);
+                //close (client_fd);
+                //printf ("\tClient : %d \t has disconnected \n", client_fd);
+                //free (data);
+                //free (buffer);
                 return ;
 }
