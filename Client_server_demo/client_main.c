@@ -60,8 +60,6 @@ int main (int argc, char * argv [])
                                 abort ();
                 }
         }while (next_option != -1);
-        
-        /*Initiate the client connection*/
 
         /*Client request for the particular named file*/
         ret = request (port, server_name);

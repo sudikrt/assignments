@@ -41,10 +41,12 @@ void read_handler (void* arg, int client_fd)
                 ret = send_data_to_client (client_fd, data);
                 if(ret < 0)
                 {
-                        printf ("\tError in sending file \n");
+                        printf ("\tError in sending file to client : %d\n", 
+                                                                client_fd);
                         return;
                 }
-                printf("\tFinished sending\n");
+                printf("\tFinished sending file to client : %d\n", 
+                                                                client_fd);
         }
         /*File not exists send the error message to client*/
         else
@@ -59,6 +61,6 @@ void read_handler (void* arg, int client_fd)
                         return;
                 }
         }
-        //close (client_fd);
+        close (client_fd);
         return;
 }

@@ -28,11 +28,10 @@ int main (int argc, char* argv [])
         int client_fd       =       0;
         int port            =       0;
         int next_option;
-        pthread_t pid, t_id, s_id;
+        pthread_t pid, t_id;
 
         struct sockaddr_in client_addr;
-
-        service_obj_t s_obj;
+        C_Request* c_req;
 
         /* Get the new queue and it will be initialized */
         queue_obj = queue_new ();
@@ -97,13 +96,12 @@ int main (int argc, char* argv [])
                 }
                 printf ("\tClient : %d \t had connected\n", client_fd);
 
-                //s_obj.client_fd = client_fd;
-                //s_obj.obj = queue_obj;
                 /*Giving the service to client*/
-                //pthread_create (&s_id, NULL, &server_response, &s_obj);
-                server_response (client_fd, queue_obj);
+                c_req = (C_Request*) calloc (1, sizeof (C_Request));
+
+                server_response (client_fd, queue_obj, c_req);
         }
-        
+
         ret = 0;
         out:
             close (socket_fd);

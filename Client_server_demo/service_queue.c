@@ -29,7 +29,6 @@ void* service_queue(void* arg)
                 {
                         /* Set the flag to zero if the queue was empty 
                          * for blocking the thread*/
-                        printf ("Sleeping\n");
                         set_thread_flag (0);
                 }
         }

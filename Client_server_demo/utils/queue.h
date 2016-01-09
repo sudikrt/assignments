@@ -25,14 +25,6 @@ typedef struct queue
         q_node_t* tail;
 } queue_t;
 
-
-typedef struct c_r
-{
-        int type;
-        int client_fd;
-        char* buf;
-        void (*operation) (void*, int);
-} C_R;
 /*
  * Decleration of call back function;
  * */

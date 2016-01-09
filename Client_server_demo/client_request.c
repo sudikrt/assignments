@@ -33,7 +33,7 @@ int request (int port, char* server_name)
                 scanf ("%d", &value);
                 if (value > 3 || value < 1)
                 {
-                        printf ("\tEnter the proper option try again. . \n");
+                        printf ("\tEnter the proper option try again. \n");
                         goto menu;
                 }
                 switch (value)
@@ -42,8 +42,8 @@ int request (int port, char* server_name)
                                 client_fd = sftp_rpc_client (port, server_name);
                                 if(client_fd < 0)
                                 {
-                                        printf ("\tConnection failure try again\n");
-                                        goto menu;
+                                        printf ("\tConnection failure re run\n");
+                                        goto out;
                                 }
                                 printf ("\tConnection Success!!\n");
                                 memset (buffer, 0, sizeof(buffer));
@@ -97,20 +97,13 @@ int request (int port, char* server_name)
                                          * */
                                         printf ("\tRequest in the queue..processing\n");
                                         get_data_from_server (client_fd, file_name);
-                                        //close (client_fd);
                                 }
+                                close (client_fd);
                                 break;
                         case 2:
                                 break;
                         case 3:
-                                memset (buffer, 0, 1024);
-                                sprintf (buffer, "%d", quit);
-                                ret = write (client_fd, buffer, 1024);
-                                if (ret < 0)
-                                {
-                                        printf ("\tSome error ocurred\n");
-                                        goto menu;
-                                }
+                                ret = 0;
                                 goto out;
                         default:
                                 ret = 0;

@@ -75,7 +75,7 @@ int send_data_to_client (int client_fd, char * file_name)
                 goto out;
         }
         
-        printf ("\tSending\n");
+        printf ("\tSending file to client       : %d\n", client_fd);
         /*It will write the file data to socket and send it to client*/
         while(1)
         {
