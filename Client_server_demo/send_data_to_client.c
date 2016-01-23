@@ -1,6 +1,22 @@
 #include "socket_header.h"
 #include <signal.h>
 
+ssize_t calc_file_size_response () {
+        ssize_t len     =       0;
+        
+        /* Size of the response type */
+        len = sizeof (int);
+        
+        /* Size of return value */
+        len += sizeof (ssize_t);
+        
+        /* size of the footer */
+        len += sizeof (int);
+
+out:
+        return len;
+}
+
 /* Handling the signal */
 int sig = 0;
 int new_ret = 0;
@@ -26,8 +42,10 @@ void handler (int signal_number)
  * */
 int send_data_to_client (int client_fd, char * file_name)
 {
-        int ret = -1;
+        int ret         =       -1;
         int fd;
+        ssize_t len     =       0;
+        int buf_ptr     =       0;
         char * buffer;
         int number_of_bytes = 0;
         struct stat stat_var;
@@ -38,9 +56,6 @@ int send_data_to_client (int client_fd, char * file_name)
         
         /* Assigning the client_fd tp sig to handle the signal gracefully */
         sig = client_fd;
-
-        /* Allocating the space of buffer */
-        buffer = (char *) malloc (1024);
 
         /* Change the current directory to the export directory */
         ret = chdir(exp_dir);
@@ -63,11 +78,32 @@ int send_data_to_client (int client_fd, char * file_name)
         /*Waiting for the signal*/
         sigaction (SIGPIPE, &sa, NULL);
 
-        /*Read the size of the file and send it to the client */
+        /* Read the size of the file and send it to the client */
         ret = stat(file_name, &stat_var);
-        memset (buffer, 0 ,1024);
-        sprintf (buffer, "%ld", stat_var.st_size);
-        ret = write (client_fd, buffer, 1024);
+        
+        /* Calculate the length of the response */
+        len = calc_file_size_response ();
+        
+        /* Allocate the memory */
+        buffer = (char*) calloc (1, len + sizeof (int));
+        
+        /* Copy the length of the response */
+        memcpy (buffer, &len, sizeof (int));
+        buf_ptr += sizeof (int);
+        
+        len = success_response;
+        memcpy (buffer + buf_ptr, &len, sizeof (int));
+        buf_ptr += sizeof (int);
+        
+        len = stat_var.st_size;
+        memcpy (buffer + buf_ptr, &len, sizeof (ssize_t));
+        buf_ptr += sizeof (ssize_t);
+        
+        len = 0xbadf00d;
+        memcpy (buffer + buf_ptr, &len, sizeof (int));
+        buf_ptr += sizeof (int);
+
+        ret = write (client_fd, buffer, buf_ptr);
         if (ret < 0)
         {
                 ret = -1;
@@ -75,27 +111,30 @@ int send_data_to_client (int client_fd, char * file_name)
                 goto out;
         }
         
+        buffer = (char*) calloc (1,1024);
+        memset (buffer, 0, 1024);
+        
         printf ("\tSending file to client       : %d\n", client_fd);
         /*It will write the file data to socket and send it to client*/
         while(1)
         {
+                
                 number_of_bytes = read (fd, buffer, 1024);
-                if(number_of_bytes < 0)
-                {
+                if (number_of_bytes < 0) {
                         ret = -1;
                         fprintf (stderr, "\tERROR: %s\n", strerror(errno));
                         goto out;
                 }
                 number_of_bytes = write (client_fd, buffer, number_of_bytes);
-                if (number_of_bytes == 0)
-                {
-                        break;
-                }
                 if (number_of_bytes < 0)
                 {
                         ret = -1;
                         fprintf (stderr, "\tERROR: %s\n", strerror(errno));
                         goto out;
+                }
+                if (number_of_bytes == 0)
+                {
+                        break;
                 }
         }
         
@@ -113,6 +152,5 @@ int send_data_to_client (int client_fd, char * file_name)
             if (fd >= 0) {
                     close (fd);
             }
-            free (buffer);
             return ret;
 }

@@ -4,6 +4,204 @@ void write_handler (void* arg, int client_fd)
 {
         
 }
+/* Calculate the size of the failure response */
+ssize_t
+calc_file_open_response_fail () {
+        ssize_t len     =       0;
+        
+        /* Length of response type */
+        len = sizeof (int);
+        
+        /* Length of type of failure */
+        len += sizeof (int);
+        
+        /* Length of the return arg type*/
+        len += sizeof (int);
+        
+        /* Lenght of the footer */
+        len += sizeof (int);
+
+out:
+        return len;
+}
+
+/* Calculate the lenght of the Success response */
+ssize_t
+calc_file_open_response_success () {
+        ssize_t len     =       0;
+        
+        /* Length of response type */
+        len = sizeof (int);
+        
+        /* Length of return arg. i.e fd*/
+        len += sizeof (int);
+        
+        /* Length of the footer */
+        len += sizeof (int);
+out:
+        return len;
+}
+
+void open_read_handler (void* arg, int client_fd)
+{
+        char* req_buf;
+        char* file_name;
+        int buf_ptr     =       0;
+        int num_of_arg  =       0;
+        int file_len    =       0;
+        int file_mode   =       0;
+        int ret         =       -1;
+        int file_desc   =       0;
+        
+        
+        /* Allocate the memory */
+        req_buf = (char*) calloc (1, 1024);
+        
+        /* Copy the arguments */
+        req_buf = arg;
+        
+        /* Copy the number of arguments */
+        memcpy (&num_of_arg, req_buf, sizeof (int));
+        buf_ptr += sizeof (int);
+        
+        /* Copy the length of the file_name */
+        memcpy (&file_len, req_buf + buf+ptr, sizeof (int));
+        buf_ptr += sizeof (int);
+        
+        /* Allocate the memory */
+        file_name = (char*) calloc (1, file_len);
+        
+        /* Copy the file_name */
+        memcpy (file_name, req_buf + buf_ptr, file_len);
+        buf_ptr += file_len;
+        
+        /* Copy the file_open mode */
+        memcpy (&file_mode, req_buf + buf_ptr, sizeof (int));
+        buf_ptr += sizeof (int);
+
+        /* Call the open file handler */
+        ret = open_file (file_name, file_mode, &file_desc);
+        if (ret == 0)
+        {
+                buf_ptr = 0;
+                /* Calculate the length of the response */
+                file_len = calc_file_open_response_success ();
+                
+                /* Allocate the memory */
+                req_buf = (char*) calloc (1, file_len + sizeof (int));
+                
+                /* Copy the length of the response */
+                memcpy (req_buf, &file_len, sizeof (int));
+                buf_ptr += sizeof (int);
+                
+                /* Copy the response type */
+                file_len = success_response;
+                memcpy (req_buf + buf_ptr, &file_len, sizeof (int));
+                buf_ptr += sizeof (int);
+                
+                /* Copy the response i.e fd */
+                memcpy (req_buf + buf_ptr, &file_desc, sizeof (int));
+                buf_ptr += sizeof (int);
+                
+                /* Copy the footer */
+                file_len = 0xbadf00d;
+                memcpy (req_buf + buf_ptr, &file_len, sizeof (int));
+                buf_ptr += sizeof (int);
+                
+                goto out;
+        } 
+        /* If the file is alredya opened */
+        else if (ret == file_already_open) {
+                buf_ptr = 0;
+                /* Calculate the length of the response */
+                file_len = calc_file_open_response_fail ();
+                
+                /* Allocate the memory */
+                req_buf = (char*) calloc (1, file_len + sizeof (int));
+                
+                /* Copy the length of the response */
+                memcpy (req_buf, &file_len, sizeof (int));
+                buf_ptr += sizeof (int);
+                
+                /* Copy the response type */
+                file_len = fail_response;
+                memcpy (req_buf + buf_ptr, &file_len, sizeof (int));
+                buf_ptr += sizeof (int);
+                
+                /* Copy the fail_type */
+                file_len = file_already_open;
+                memcpy (req_buf + buf_ptr, &file_len, sizeof (int));
+                buf_ptr += sizeof (int);
+                
+                /* Copy the response i.e fd */
+                memcpy (req_buf + buf_ptr, &file_desc, sizeof (int));
+                buf_ptr += sizeof (int);
+                
+                /* Copy the footer */
+                file_len = 0xbadf00d;
+                memcpy (req_buf + buf_ptr, &file_len, sizeof (int));
+                buf_ptr += sizeof (int);
+                
+                goto out;
+        }
+        /* If the file is not present in the directory */
+        else if (ret == ENOENT) {
+                 buf_ptr = 0;
+                /* Calculate the length of the response */
+                file_len = calc_file_open_response_success ();
+                
+                /* Allocate the memory */
+                req_buf = (char*) calloc (1, file_len + sizeof (int));
+                
+                /* Copy the length of the response */
+                memcpy (req_buf, &file_len, sizeof (int));
+                buf_ptr += sizeof (int);
+                
+                /* Copy the response type */
+                file_len = fail_response;
+                memcpy (req_buf + buf_ptr, &file_len, sizeof (int));
+                buf_ptr += sizeof (int);
+                
+                /* Copy the fail_type */
+                file_len = ENOENT;
+                memcpy (req_buf + buf_ptr, &file_len, sizeof (int));
+                buf_ptr += sizeof (int);
+                
+                /* Copy the footer */
+                file_len = 0xbadf00d;
+                memcpy (req_buf + buf_ptr, &file_len, sizeof (int));
+                buf_ptr += sizeof (int);
+                
+                goto out;
+        }
+        ret = write (client_fd, req_buf, buf_ptr);
+        if (ret < 0) {
+        
+                printf ("\tCommunication error\n");
+                goto out;
+        }
+out:
+        return;
+}
+
+
+/* Function to calculate the request size */
+ssize_t 
+calc_response_queue_full () {
+        ssize_t len     =       0;
+        
+        /* Length of Response type */
+        len = sizeof (int);
+        
+        /* Size of the response */
+        len += sizeof (int);
+        
+        /* Footer size. */
+        len += sizeof (int);
+
+out:
+        return len;
+}
 
 /*This function set the Thread_flag value with specified value
  * Input :
@@ -28,27 +226,44 @@ void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
 {
         char* buffer;
         char* data;
+        int len         =       0;
         int ret         =       0;
-        int res         =       0;
-
+        long res        =       0;
+        int buf_ptr     =       0;
         buffer = (char*) calloc (1,1024);
-        data = (char*) calloc (1,1024);
 
         ret = read (client_fd, buffer, 1024);
-        if(ret != 0)
+        printf ("Recieved bytes %d\n", ret);
+        if(ret > 0)
         {
-                /*Read the type of the request from the client request*/
-                memset (data, 0, 1024);
-                memcpy (data, buffer, 2);
-                res = atoi (data);
+                /* Read the footer. */
+                memcpy (&res, (buffer + (ret - sizeof (int)) ), sizeof (int));
+
+                /* Checking the message is valid or not .*/
+                if (res != 0xbaadf00d) {
+                        goto out;
+                }
+                
+                /* Read the length of the message */
+                memcpy (&len, buffer, sizeof (int));
+                buf_ptr += sizeof (int);
+
+                /* If valid message  read the type of the request. */
+                memcpy (&res, buffer + buf_ptr, sizeof (int));
+                buf_ptr += sizeof (int);
 
                 switch (res)
                 {
-                        case read_request:
-                                        c_request -> type = read_request;
-                                        c_request -> buf = buffer;
+                        case file_request:
+                                        c_request -> type = file_request;
+                                        
+                                        /* Read the Number of arguments and the 
+                                         * arguments itself */
+                                        c_request -> buf = (char*) calloc (1, ret - buf_ptr);
+                                        memcpy (c_request -> buf, buffer + buf_ptr, 
+                                                                ret - buf_ptr) ;
                                         c_request -> client_fd = client_fd;
-                                        c_request -> operation = (void*) read_handler;
+                                        c_request -> operation = (void*) file_handler;
                                         break;
                         case write_request:
                                         c_request -> type = write_request;
@@ -56,6 +271,15 @@ void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
                                         c_request -> client_fd = client_fd;
                                         c_request -> operation = (void*) write_handler;
                                         break;
+                        case open_file_request:
+                                        c_request -> type = open_file_request;
+                                        /* Read the Number of arguments and the 
+                                         * arguments itself */
+                                        c_request -> buf = (char*) calloc (1, ret - buf_ptr);
+                                        memcpy (c_request -> buf, buffer + buf_ptr, 
+                                                                ret - buf_ptr) ;
+                                        c_request -> client_fd = client_fd;
+                                        c_request -> operation = (void*) read_handler;
                         case quit:
                                         goto out;
                                         break;
@@ -68,35 +292,46 @@ void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
         data_read:
                 if (queue_full (queue_ref) == 1)
                 {
-                        memset (data, 0, 1024);
-                        sprintf (data, "%d", queue_ful);
-                        ret = write (client_fd, data, 1024);
+                        /* Clears the buffer */
+                        memset (buffer, 0, 1024);
+                        res = 0;
+                        /* Gives the length of the response. */
+                        len = calc_response_queue_full ();
+                        
+                        /* Allocate the memory */
+                        buffer = (char*) calloc (1, len + 4);
+                        
+                        /* Copy the length of the request. */
+                        memcpy (buffer, &len, sizeof (int));
+                        res += sizeof (int);
+                        
+                        /*Copy the type of the response */
+                        len = fail_response;
+                        memcpy (buffer + res, &len, sizeof (int));
+                        res += sizeof (int);
+                        
+                        /* Copy the response */
+                        len = queue_ful;
+                        memcpy (buffer + res, &len, sizeof (int));
+                        res +=sizeof (int);
+                        
+                        /* Send the response to the client */
+                        ret = write (client_fd, data, res);
                         if (ret < 0)
                         {
                                 printf ("\tSome error ocurred\n");
                                 goto data_read;
                         }
                 }
-                else
-                {
-                        memset (data, 0, 1024);
-                        sprintf (data, "%d", queue_nful);
-                        ret = write (client_fd, data, 1024);
-                        if (ret < 0)
-                        {
-                                printf ("\tSome error ocurred\n");
-                                goto data_read;
-                        }
 
-                        /*Calles the function to add the client_request to the 
-                        * queue */
-                        ret = queue_put (queue_ref, c_request);
-                        printf ("\tClient : %d's request is inserted\n",
-                                                                client_fd);
+                /*Calles the function to add the client_request to the 
+                * queue */
+                ret = queue_put (queue_ref, c_request);
+                printf ("\tClient : %d's request is inserted\n", client_fd);
 
-                        /* Wake Up the service thread. */
-                        set_thread_flag (1);
-                }
+                /* Wake Up the service thread. */
+                set_thread_flag (1);
+                
         }
         out:
                 free (data);

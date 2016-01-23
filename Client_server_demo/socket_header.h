@@ -15,14 +15,20 @@
 #define BACK_LOG 5
 
 /* Enumeration for request_type */
-enum request_type {read_request = 30, write_request = 31, quit = 32};
+enum request_type {file_request = 30, write_request = 31, file_operation = 32, 
+                        open_file_request = 33, quit = 34};
+
+/* Enumeration for file opening modes. */
+enum mode_type {read_mode = 1, write_mode = 2};
 
 /* Enumeration for queue_errors */
 enum queue_error {queue_ful = 40, queue_nful = 41};
 
 /* Enumeration for error list */
 enum err_list {file_not_exist = 20, read_fail = 21, write_fail = 22,
-                s_accept = 23, file_exist = 24};
+                file_exist = 23, file_already_open = 24, 
+                file_already_closed = 25, fail_response = 27, 
+                success_response = 26, insufficient_arg = 28};
 
 /*Stat structure variable*/
 struct stat st;
@@ -47,6 +53,14 @@ typedef struct service_obj
         queue_t* obj;
 } service_obj_t;
 
+typedef struct fd_data {
+        int file_fd;
+        char* file_name;
+        unsigned int mode;
+        struct fd_data* next;
+} fd_data_t;
+
+
 /* Function Decleration for initilization of server */
 void* sftp_rpc_server_init (void* port_id);
 
@@ -57,6 +71,8 @@ void* service_queue (void* arg);
 
 /* Function for handling the read request */ 
 void read_handler (void* arg, int client_fd);
+
+void file_handler (void* arg, int client_fd);
 
 
 int handle_request (void *);
@@ -74,3 +90,5 @@ int thread_flag;
 pthread_cond_t thread_flag_cv;
 pthread_mutex_t thread_flag_mutex;
 
+
+//s_accept = 23, 

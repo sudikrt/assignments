@@ -15,11 +15,11 @@ int handle_request (void* arg)
         * the request*/
         switch (request.type)
         {
-                case read_request:
+                case file_request:
                                 request.operation (request.buf,
                                                         request.client_fd);
                                 break;
-                case write_request:
+                case open_file_request:
                                 request.operation (request.buf,
                                                         request.client_fd);
                                 break;

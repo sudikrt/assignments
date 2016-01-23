@@ -8,18 +8,18 @@
  * Output:
  *      int             :       Specifies the Success or failure.
  * */
-int get_doc_from_server (int client_fd, char* file_name)
+int get_doc_from_server (int client_fd, char* file_name, ssize_t len)
 {
         int ret                         =       -1;
         int number_of_bytes_read        =       0;
-        long len                      =       0;
         int fd;
         char* buffer;
         struct stat stat_var;
 
         /* Allocating the memory. */
         buffer = (char*) calloc (1,1024);
-
+        memset (buffer, 0, 1024);
+        
         /* Changes the current directory to the user defined export 
          * directory. */
         ret = chdir(dest_dir);
@@ -37,20 +37,8 @@ int get_doc_from_server (int client_fd, char* file_name)
                 ret = -1;
                 goto out;
         }
-
-        /* Clears the buffer content and reads the size of the file. */
-        memset (buffer, 0, 1024);
-        ret = read (client_fd, buffer, 1024);
-        if (ret < 0)
-        {
-                ret = -1;
-                fprintf (stderr, "\tERROR: %s\n", strerror(errno));
-                goto out;
-        }
-        len = atol (buffer);
         
         printf ("\tSaving the file...\n");
-        /*Reads from the server and writes to file*/
         while (1)
         {
                 number_of_bytes_read = read (client_fd, buffer, 1024);
@@ -68,8 +56,9 @@ int get_doc_from_server (int client_fd, char* file_name)
                 }
                 ret = stat(file_name, &stat_var);
 
-                if(stat_var.st_size == len)
+                if(stat_var.st_size == len || number_of_bytes_read == 0)
                 {
+                        ret = write (fd, buffer, number_of_bytes_read);
                         ret = 0;
                         break;
                 }
