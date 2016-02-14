@@ -1,7 +1,25 @@
-sudo_ftp_server: server_main.o sftp_rpc_server_init.o sftp_rpc_server_start.o queue.o server_response_queue.o handler.o service_queue.o check_file_exist.o read_handler.o send_data_to_client.o sudo_ftp_client
-	gcc -o sudo_ftp_server server_main.o sftp_rpc_server_init.o sftp_rpc_server_start.o queue.o server_response_queue.o handler.o service_queue.o check_file_exist.o read_handler.o send_data_to_client.o -lpthread 
-sudo_ftp_client: socket_header.h client_main.o sftp_rpc_client.o client_request.o get_data_from_server.o get_doc_from_server.o
-	gcc -o sudo_ftp_client client_main.o sftp_rpc_client.o client_request.o get_data_from_server.o get_doc_from_server.o -lpthread
+sudo_ftp_server: server_main.o sftp_rpc_server_init.o sftp_rpc_server_start.o queue.o server_response_queue.o handler.o service_queue.o check_file_exist.o read_handler.o open_file_handler.o close_file_handler.o send_data_to_client.o open_file.o read_bytes.o read_chunks_handler.o sudo_ftp_client
+	gcc -o sudo_ftp_server server_main.o sftp_rpc_server_init.o sftp_rpc_server_start.o queue.o server_response_queue.o handler.o service_queue.o check_file_exist.o read_handler.o open_file_handler.o close_file_handler.o send_data_to_client.o open_file.o read_bytes.o read_chunks_handler.o -lpthread 
+sudo_ftp_client: socket_header.h client_main.o sftp_rpc_client.o client_request.o get_data_from_server.o get_doc_from_server.o handle_open_file_request.o handle_close_file_request.o handle_read_chunk_request.o 
+	gcc -o sudo_ftp_client client_main.o sftp_rpc_client.o client_request.o get_data_from_server.o get_doc_from_server.o -lpthread handle_open_file_request.o handle_close_file_request.o handle_read_chunk_request.o
+read_bytes.o: read_bytes.c
+	gcc -g -c read_bytes.c
+read_chunks_handler.o: read_chunks_handler.c
+	gcc -g -c read_chunks_handler.c
+handle_read_chunk_request.o: handle_read_chunk_request.c
+	gcc -g -c handle_read_chunk_request.c
+handle_close_file_request.o: handle_close_file_request.c
+	gcc -g -c handle_close_file_request.c
+close_file_handler.o: close_file_handler.c
+	gcc -g -c close_file_handler.c
+open_file_handler.o: open_file_handler.c
+	gcc -g -c open_file_handler.c
+open_file.o: open_file.c
+	gcc -g -c open_file.c
+handle_open_file_request.o: handle_open_file_request.c
+	gcc -g -c handle_open_file_request.c
+open_file_handler.o: open_file_handler.c
+	gcc -g -c open_file_handler.c
 queue.o: utils/queue.c
 	gcc -g -c utils/queue.c -lpthread
 handler.o: handler.c
@@ -31,4 +49,6 @@ client_request.o: client_request.c socket_header.h
 get_doc_from_server.o: get_doc_from_server.c socket_header.h
 	gcc -g -c get_doc_from_server.c
 sftp_rpc_client.o: sftp_rpc_client.c socket_header.h 
-	gcc -g -c sftp_rpc_client.c 
+	gcc -g -c sftp_rpc_client.c
+clean: 
+	rm -f *.o 

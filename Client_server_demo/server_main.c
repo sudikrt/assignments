@@ -38,7 +38,10 @@ int main (int argc, char* argv [])
         
         /* Initialize the condition and mutex variables*/
         initialize_flag ();
-        
+
+        /* Get the linked list and initialize it */
+        fd_node = NULL;
+
         /*Command line options*/
         const char* const short_option = "p:d:";
 

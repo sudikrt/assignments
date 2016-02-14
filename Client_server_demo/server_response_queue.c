@@ -65,7 +65,7 @@ void open_read_handler (void* arg, int client_fd)
         buf_ptr += sizeof (int);
         
         /* Copy the length of the file_name */
-        memcpy (&file_len, req_buf + buf+ptr, sizeof (int));
+        memcpy (&file_len, req_buf + buf_ptr, sizeof (int));
         buf_ptr += sizeof (int);
         
         /* Allocate the memory */
@@ -109,7 +109,8 @@ void open_read_handler (void* arg, int client_fd)
                 buf_ptr += sizeof (int);
                 
                 goto out;
-        } 
+        }
+
         /* If the file is alredya opened */
         else if (ret == file_already_open) {
                 buf_ptr = 0;
@@ -256,9 +257,6 @@ void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
                 {
                         case file_request:
                                         c_request -> type = file_request;
-                                        
-                                        /* Read the Number of arguments and the 
-                                         * arguments itself */
                                         c_request -> buf = (char*) calloc (1, ret - buf_ptr);
                                         memcpy (c_request -> buf, buffer + buf_ptr, 
                                                                 ret - buf_ptr) ;
@@ -273,15 +271,28 @@ void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
                                         break;
                         case open_file_request:
                                         c_request -> type = open_file_request;
-                                        /* Read the Number of arguments and the 
-                                         * arguments itself */
                                         c_request -> buf = (char*) calloc (1, ret - buf_ptr);
                                         memcpy (c_request -> buf, buffer + buf_ptr, 
                                                                 ret - buf_ptr) ;
                                         c_request -> client_fd = client_fd;
-                                        c_request -> operation = (void*) read_handler;
-                        case quit:
-                                        goto out;
+                                        c_request -> operation = (void*) open_file_handler;
+                                        break;
+                        case close_file_request:
+                                        c_request -> type = close_file_request;
+                                        c_request -> buf = (char*) calloc (1, ret - buf_ptr);
+                                        memcpy (c_request -> buf, buffer + buf_ptr,
+                                                                ret - buf_ptr);
+                                        c_request -> client_fd = client_fd;
+                                        c_request -> operation = (void*) close_file_handler;
+                                        break;
+                                        
+                        case read_in_chunks:
+                                        c_request -> type = read_in_chunks;
+                                        c_request -> buf = (char*) calloc (1, ret - buf_ptr);
+                                        memcpy (c_request -> buf, buffer + buf_ptr,
+                                                                ret - buf_ptr);
+                                        c_request -> client_fd = client_fd;
+                                        c_request -> operation = (void*) read_chunks_handler;
                                         break;
                 }
                 /* Check whether the queue is full or not 
@@ -334,6 +345,5 @@ void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
                 
         }
         out:
-                free (data);
                 return ;
 }

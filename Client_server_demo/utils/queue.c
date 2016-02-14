@@ -143,7 +143,15 @@ int queue_get (queue_t* obj_queue, queue_cbk_t arg)
 
         ret = arg (data);
 
-        free (node);
+        if (node -> c_request != NULL) {
+                free (node -> c_request);
+        }
+        if (node -> next != NULL) {
+                free (node -> next);
+        }
+        if (node != NULL){
+                free (node);
+        }
 
         out:
                 return ret;

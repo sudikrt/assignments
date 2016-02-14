@@ -35,8 +35,7 @@ newNode () {
  * 
  * */
 int
-check_isOpen (char* file_name, unsigned int mode, fd_data_t* fd_node, 
-                                                        int* file_desc) {
+check_isOpen (char* file_name, unsigned int mode, int* file_desc) {
         
         int ret = -1;
         fd_data_t* temp;
@@ -46,7 +45,7 @@ check_isOpen (char* file_name, unsigned int mode, fd_data_t* fd_node,
 
                 if (strcmp (temp -> file_name, file_name) == 0 &&
                                 temp -> mode == mode) {
-                        file_desc = temp -> fd;
+                        *file_desc = temp -> fd;
                         ret = 0;
                         goto out;
                 }
@@ -75,8 +74,7 @@ check_isOpen (char* file_name, unsigned int mode, fd_data_t* fd_node,
  *                                      failure;
  * */
 int 
-open_file (char* file_name, unsigned int mode, fd_data_t* fd_root,
-                                                int* file_desc) {
+open_file (char* file_name, int* desc, unsigned int mode) {
 
         int ret = -1;
         int fd;
@@ -84,7 +82,7 @@ open_file (char* file_name, unsigned int mode, fd_data_t* fd_root,
         fd_data_t* index;
 
         /* Determines whether the file is opened or not */
-        if (check_isOpen (file_name, mode, fd_root, file_desc) == 0) {
+        if (check_isOpen (file_name, mode, desc) == 0) {
                 /* Already opened then ..*/
                 ret = file_already_open;
                 goto out;
@@ -97,13 +95,13 @@ open_file (char* file_name, unsigned int mode, fd_data_t* fd_root,
                         ret = ENOENT;
                         goto out;
                 }
-                
+
                 /* If the file is not already opened*/
                 if (mode == read_mode) {
                         /* Openes the file in read mode. */
                         fd = open (file_name, O_RDONLY);
                         if (fd < 0) {
-                                ret = errno;
+                                ret = file_open_error;
                                 goto out;
                         }
                 }
@@ -111,29 +109,29 @@ open_file (char* file_name, unsigned int mode, fd_data_t* fd_root,
                         /* Openes the file in write mode */
                         fd = open (file_name, O_WRONLY);
                         if (fd < 0) {
-                                ret = errno;
+                                ret = file_open_error;
                                 goto out;
                         }
                 }
+
                 /* Create the new node and assign the file_name, fd to it. */
                 temp = newNode ();
                 temp -> fd = fd;
                 temp -> file_name = file_name;
                 temp -> mode = mode;
-                temp -> next = null;
+                temp -> next = NULL;
                 /* Check if the queue is empty */
-                if (fd_root == NULL) {
-                        fd_root = temp;
+                if (fd_node == NULL) {
+                        fd_node = temp;
                         ret = 0;
-                        file_desc = fd;
+                        *desc = fd;
                         goto out;
                 }
                 /* If the queue is not empty then the traverse through it 
                  * and insert the new node at the end.*/
-                for (index = fd_node; index != NULL; index = index -> next)
-                        ;
+                for (index = fd_node; index -> next != NULL; index = index -> next);
                 index -> next = temp;
-                file_desc = fd;
+                desc = &fd;
         }
         ret = 0;
         out:
@@ -153,14 +151,13 @@ open_file (char* file_name, unsigned int mode, fd_data_t* fd_root,
  *                                      otherwise -1;
  * */
 int 
-check_isNotClosed (char* file_name, unsigned int file_desc, 
-                                                        fd_data_t* fd_root) {
+check_isNotClosed (int* file_desc) {
         int ret = -1;
         fd_data_t* temp;
+        
         for (temp = fd_node; temp != NULL; temp = temp -> next) {
 
-                if (strcmp (temp -> file_name, file_name) == 0 &&
-                                temp -> fd == fd) {
+                if (temp -> fd == *file_desc) {
                         ret = 0;
                         goto out;
                 }
@@ -182,24 +179,30 @@ check_isNotClosed (char* file_name, unsigned int file_desc,
  * 
  * */
 void 
-close_fd (char* file_name, unsigned int file_desc, fd_data_t* fd_root) {
+close_fd (int* file_desc) {
         
         fd_data_t* temp;
-        while (fd_root -> next != NULL && (fd_root -> next) -> fd != file_desc)
+        while (fd_node -> next != NULL && (fd_node -> next) -> fd != *file_desc)
         {
-                fd_root = fd_root -> next;
+                fd_node = fd_node -> next;
         }
-        
-        if (fd_root -> next == NULL) {
-                return ;
+        if (fd_node == NULL) {
+                goto out;
         }
-        temp = fd_root -> next;
+        if (fd_node -> next == NULL) {
+                close (fd_node -> fd);
+                free (fd_node -> file_name);
+                fd_node = NULL;
+                goto out;
+        }
+        temp = fd_node -> next;
         
-        fd_root -> next = temp -> next;
+        fd_node -> next = temp -> next;
 
         close (temp -> fd);
         free (temp -> file_name);
         free (temp);
+out:
         return;
 }
 
@@ -217,13 +220,13 @@ close_fd (char* file_name, unsigned int file_desc, fd_data_t* fd_root) {
  *                                      the file.
  * */
 int 
-close_file (char* file_name, unsigned int file_desc, fd_data_t* fd _root) {
+close_file (int* file_desc) {
 
         int ret = -1;
 
-        if (check_isNotClosed (file_name, file_desc, fd_root) == 0) {
+        if (check_isNotClosed (file_desc) == 0) {
 
-                close_fd (file_name, file_desc, fd_root);
+                close_fd (file_desc);
                 ret = 0;
                 goto out;
         }

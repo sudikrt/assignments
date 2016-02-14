@@ -23,6 +23,14 @@ int handle_request (void* arg)
                                 request.operation (request.buf,
                                                         request.client_fd);
                                 break;
+                case close_file_request:
+                                request.operation (request.buf, 
+                                                        request.client_fd);
+                                break;
+                case read_in_chunks:
+                                request.operation (request.buf,
+                                                        request.client_fd);
+                                break;
         }
         return 0;
 }

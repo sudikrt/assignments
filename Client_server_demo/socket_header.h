@@ -16,7 +16,8 @@
 
 /* Enumeration for request_type */
 enum request_type {file_request = 30, write_request = 31, file_operation = 32, 
-                        open_file_request = 33, quit = 34};
+                        open_file_request = 33, quit = 34, close_file_request = 35,
+                        read_in_chunks = 36};
 
 /* Enumeration for file opening modes. */
 enum mode_type {read_mode = 1, write_mode = 2};
@@ -28,7 +29,8 @@ enum queue_error {queue_ful = 40, queue_nful = 41};
 enum err_list {file_not_exist = 20, read_fail = 21, write_fail = 22,
                 file_exist = 23, file_already_open = 24, 
                 file_already_closed = 25, fail_response = 27, 
-                success_response = 26, insufficient_arg = 28};
+                success_response = 26, insufficient_arg = 28,
+                file_open_error = 29};
 
 /*Stat structure variable*/
 struct stat st;
@@ -54,11 +56,13 @@ typedef struct service_obj
 } service_obj_t;
 
 typedef struct fd_data {
-        int file_fd;
+        int fd;
         char* file_name;
         unsigned int mode;
         struct fd_data* next;
 } fd_data_t;
+
+fd_data_t* fd_node;
 
 
 /* Function Decleration for initilization of server */
@@ -74,6 +78,11 @@ void read_handler (void* arg, int client_fd);
 
 void file_handler (void* arg, int client_fd);
 
+void open_file_handler (void* arg, int client_fd);
+
+void close_file_handler (void* arg, int client_fd);
+
+void read_chunks_handler (void* arg, int client_fd);
 
 int handle_request (void *);
 
@@ -84,11 +93,11 @@ int handle_request (void *);
 char* exp_dir;
 char* dest_dir;
 
+int file_desc_client;
+
 /* Variable decleration of lock object and condition variables */
 pthread_mutex_t lock;
 int thread_flag;
 pthread_cond_t thread_flag_cv;
 pthread_mutex_t thread_flag_mutex;
 
-
-//s_accept = 23, 

@@ -12,10 +12,10 @@
  *                                      otherwise -1;
  * */
 int
-isOpen (int fd, fd_data_t* fd_root)
+isOpen (int fd)
 {
         int ret = -1;
-                
+        fd_data_t* temp;
         /*Traverse the queue untill the queue is null or the file exist. */
         for (temp = fd_node; temp != NULL; temp = temp -> next) {
 
@@ -38,27 +38,27 @@ out:
  *                              will be returned otherwise the -1 will returned.
  * */
 ssize_t
-read_bytes (int fd, char* buffer, ssize_t no_bytes, fd_data_t* fd_root)
+read_bytes (int fd, char* buffer, int* no_bytes)
 {
         int ret = -1;
-        ssize bytes_read;
+        int bytes_read = *no_bytes;
         
         /* Check whether the file is opened or not */
-        if (isOpen (fd, fd_root) != 0) 
+        if (isOpen (fd) != 0) 
         {
                 ret = file_already_closed;
                 goto out;
         }
         
         /* Read no_bytes to buffer */
-        bytes_read = read (fd, buffer, no_bytes);
+        *no_bytes = read (fd, buffer, bytes_read);
         
         /* Check for the bytes_read */
-        if (bytes_read <= 0) 
+        if (*no_bytes <= 0) 
         {
                 goto out;
         }
-        ret = bytes_read;
+        ret = 0;
 out:
         return ret;
 }

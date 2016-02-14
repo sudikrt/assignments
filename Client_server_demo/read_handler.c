@@ -2,13 +2,13 @@
 
 ssize_t calc_response_file_not_exist () {
         ssize_t len     =       0;
-        
+
         /* Response type */
         len = sizeof (int);
-        
+
         /* Size of the response */
         len += sizeof (int);
-        
+
         /* Footer size. */
         len += sizeof (int);
 
