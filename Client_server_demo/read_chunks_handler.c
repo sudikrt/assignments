@@ -52,8 +52,11 @@ read_chunks_handler (void* arg, int client_fd) {
         unsigned int fd;
         char* buffer;
         char* read_buf;
+        
+        /* Allocates the memory */
         buffer = (char*) calloc (1, 1024);
 
+        /* Copy the arguments */
         buffer = arg;
         
         /* Read the number of arguments */
@@ -103,6 +106,9 @@ read_chunks_handler (void* arg, int client_fd) {
         
         switch (ret) {
                 case -1:
+                        /* Send the error message for the read fail */
+                        
+                        /* Claculate the length of the error message */
                         len = calc_read_error_response ();
                         
                         /* Allocate the memory */
@@ -129,6 +135,9 @@ read_chunks_handler (void* arg, int client_fd) {
                         
                         break;
                 case file_already_closed:
+                        /*Send the error message if the file is closed */
+                        
+                        /* Calculate the response length */
                         len = calc_read_error_response ();
                         
                         /* Allocate the memory */
@@ -154,10 +163,13 @@ read_chunks_handler (void* arg, int client_fd) {
                         res += sizeof (int);
                         break;
                 case 0:
+                        /* On successful read operation send the read data to the client */
+                        
+                        /* Calculates the length of the response */
                         ret = calc_read_success_response (len);
                         
                         /* Allocate the memory */
-                        buffer = (char*) calloc (1, len + 4);
+                        buffer = (char*) calloc (1, ret + 4);
                         
                         /* Copy the length of the response. */
                         memcpy (buffer, &ret, sizeof (int));
@@ -185,12 +197,12 @@ read_chunks_handler (void* arg, int client_fd) {
         }
 send_err:
         ret = write (client_fd, buffer, res);
-        
+
         if (ret < 0) {
                 printf ("\tCommunication error\n");
                 return;
         }
-        
+
         close (client_fd);
         return;
 }

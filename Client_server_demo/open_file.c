@@ -27,8 +27,6 @@ newNode () {
  *Input:
  *      char* file_name         :       Specifies the file name;
  *      unsigned int mode       :       Specifies the mode at which it will open.
- *      fd_data_t* fd_node      :       A reference to the queue containing the
- *                                      fd list.
  * Output:
  *      int ret                 :       0 - Specifies the file already open.
  *                                      otherwise -1;
@@ -64,8 +62,6 @@ check_isOpen (char* file_name, unsigned int mode, int* file_desc) {
  *      char* file_name         :       Specifies the name of the file;
  *      unsigned int mode       :       Specifies the mode at which the file 
  *                                      should open;
- *      fd_data_t* fd_root      :       A reference to the queue containing the
- *                                      list of fd.
  *      int* file_desc          :       contains the file descriptor on successful
  *                                      opening of the file which will return 
  *                                      back to the client.
@@ -144,8 +140,6 @@ open_file (char* file_name, int* desc, unsigned int mode) {
  * Inputs:
  *      char* file_name         :       Specifies the name of the file.
  *      unsigned int file_desc  :       Specifies the file descriptor.
- *      fd_data_t* fd_root      :       A reference to the queue containing
- *                                      the list of fds.
  * Output:
  *      int ret                 :       0-Specifies the file is not closed 
  *                                      otherwise -1;
@@ -171,11 +165,9 @@ check_isNotClosed (int* file_desc) {
  * close_fd ():
  *              This function close the opened file descriptor
                 and deallocate the memory allocated in the queue.
- * Inputs:
+ * Input:
  *      char* file_name         :       Specifies the name of the file.
  *      unsigned int file_desc  :       Specifies the file descriptor.
- *      fd_data_t* fd_root      :       A reference to the queue containing
- *                                      the list of fds.
  * 
  * */
 void 
@@ -213,8 +205,6 @@ out:
  * Inputs:
  *      char* file_name         :       Specifies the name of the file.
  *      unsigned int file_desc  :       Specifies the file descriptor.
- *      fd_data_t* fd_root      :       A reference to the queue containing
- *                                      the list of fds.
  * Output:
  *      int ret                 :       Specifies the successful closing of 
  *                                      the file.

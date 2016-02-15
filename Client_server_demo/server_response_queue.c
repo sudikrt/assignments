@@ -256,6 +256,7 @@ void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
                 switch (res)
                 {
                         case file_request:
+                                        /* Process the file request */
                                         c_request -> type = file_request;
                                         c_request -> buf = (char*) calloc (1, ret - buf_ptr);
                                         memcpy (c_request -> buf, buffer + buf_ptr, 
@@ -264,12 +265,14 @@ void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
                                         c_request -> operation = (void*) file_handler;
                                         break;
                         case write_request:
+                                        /* Process the write request */
                                         c_request -> type = write_request;
                                         c_request -> buf = buffer;
                                         c_request -> client_fd = client_fd;
                                         c_request -> operation = (void*) write_handler;
                                         break;
                         case open_file_request:
+                                        /* Process the open_file_request */
                                         c_request -> type = open_file_request;
                                         c_request -> buf = (char*) calloc (1, ret - buf_ptr);
                                         memcpy (c_request -> buf, buffer + buf_ptr, 
@@ -278,6 +281,7 @@ void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
                                         c_request -> operation = (void*) open_file_handler;
                                         break;
                         case close_file_request:
+                                        /* Process the close file request */
                                         c_request -> type = close_file_request;
                                         c_request -> buf = (char*) calloc (1, ret - buf_ptr);
                                         memcpy (c_request -> buf, buffer + buf_ptr,
@@ -285,8 +289,8 @@ void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
                                         c_request -> client_fd = client_fd;
                                         c_request -> operation = (void*) close_file_handler;
                                         break;
-                                        
                         case read_in_chunks:
+                                        /* Process the read in chunks from the file and send it  back to the client */
                                         c_request -> type = read_in_chunks;
                                         c_request -> buf = (char*) calloc (1, ret - buf_ptr);
                                         memcpy (c_request -> buf, buffer + buf_ptr,

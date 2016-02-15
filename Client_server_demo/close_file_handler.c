@@ -1,5 +1,9 @@
 #include "socket_header.h"
 
+/*
+ * This function is used to calculate the length of the 
+ * response upon successful close operation of the file.
+ * */
 ssize_t
 calc_close_file_success () {
         ssize_t len = 0;
@@ -16,6 +20,10 @@ out:
         return len;
 }
 
+/*
+ * This function calculates the length of the response upon the
+ * insufficient arg.
+ * */
 ssize_t
 calc_insuff_arg_len () {
         ssize_t len = 0;
@@ -35,6 +43,13 @@ out:
         return len;
 }
 
+/*
+ * Function to perform the close operation of the opened fd
+ * Input:
+ *      void* arg       :       containing the request for the closing of the
+ *                              particular fd
+ *      int client_fd   :       Specifies the connection identifier.
+ * */
 void
 close_file_handler (void* arg, int client_fd) {
         
@@ -93,9 +108,10 @@ close_file_handler (void* arg, int client_fd) {
         memcpy (&len, req_buf + buf_ptr, sizeof (int));
         buf_ptr += sizeof (int);
         
+        /* Initiates the closing of the opened fd */ 
         ret = close_file (&len);
         
-        
+        /* Check the return value for the successful close of the file */
         if (ret == 0) {
                 /* Clear the buffer*/
                 memset (req_buf, 0, 1024);
@@ -120,6 +136,7 @@ close_file_handler (void* arg, int client_fd) {
                 memcpy (buffer + res, &len, sizeof (int));
                 res += sizeof (int);
         }
+        /* If the file is already closed or file not found */
         else if (ret == file_already_closed) {
                 
                 /* Clear the buffer*/
@@ -147,13 +164,14 @@ close_file_handler (void* arg, int client_fd) {
         }
 
 send_err:
+        /* Send the response to the client */
         ret = write (client_fd, buffer, res);
         
         if (ret < 0) {
                 printf ("\tCommunication error\n");
                 return;
         }
-        
+        /* Closes the connection */
         close (client_fd);
         return;
 }

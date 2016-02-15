@@ -1,5 +1,6 @@
 #include "socket_header.h"
 
+/* Calculate the length of the response if the file not exist */
 ssize_t calc_response_file_not_exist () {
         ssize_t len     =       0;
 
@@ -16,6 +17,14 @@ out:
         return len;
 }
 
+/*
+ * This function performs the sending of the requested file to 
+ * the client 
+ * Input:
+ *      void* arg       :       containing the file_request i.e name and other 
+ *                              things about the client_request.
+ *      int client_fd   :containing the connection identifier.
+ * */
 void file_handler (void* arg, int client_fd)
 {
         int ret         =       0;
@@ -27,11 +36,11 @@ void file_handler (void* arg, int client_fd)
         char* data;
         char* req_buf;
 
-        
+        /* Allocate the memory */
         req_buf = (char*) calloc (1, 1024);
         
+        /* Copy the arguments */
         req_buf =  arg;
-        
         
         /* Read the number of arguments. */
         memcpy (&len, req_buf, sizeof (int));
@@ -51,14 +60,13 @@ void file_handler (void* arg, int client_fd)
         data = (char*) calloc (1,len);
         memcpy (data, req_buf + buf_ptr, len);
 
-        /* */
         /*Check the file exist in the exp_dir*/
         ret = check_file_exist(data);
 
         /*If file exists*/
         if (ret == file_exist)
         {
-                /* */
+                /* Call the function to send the requestd file to the client */
                 ret = send_data_to_client (client_fd, data);
                 if(ret < 0)
                 {
@@ -76,6 +84,7 @@ void file_handler (void* arg, int client_fd)
                 /* Gives the length of the response. */
 send_err:       len = 0;
                 res = 0;
+                /* Calaulates the length of the response */
                 len = calc_response_file_not_exist ();
                 
                 /* Allocate the memory */
@@ -109,6 +118,7 @@ send_err:       len = 0;
                         return;
                 }
         }
+        /* Closes the connection */
         close (client_fd);
         return;
 }

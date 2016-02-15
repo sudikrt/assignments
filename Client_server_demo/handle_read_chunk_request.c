@@ -1,5 +1,10 @@
 #include "socket_header.h"
-
+/*
+ * This function will handle the read_chunk i.e recieve the requested bytes 
+ * from the server.
+ * Input :
+ *      int client_fd   :       Specifies the connection identifier
+ * */
 void
 handle_read_chunk_request (int client_fd) {
         int buf_ptr     =        0;
@@ -9,18 +14,18 @@ handle_read_chunk_request (int client_fd) {
         int data        =       0;
         int ret         =       0;
         int len         =       0;
-        
+
         /* Allocate the memory */
         rec_buf = (char*) calloc (1, 1024);
-        
+
         /* Read the data from the socket */
         ret = read (client_fd, rec_buf, 1024);
-        
+
         if (ret <= 0)
         {
                 goto out;
         }
-        
+
         /* Copy the size of the response */
         memcpy (&len, rec_buf, sizeof (int));
         buf_ptr += sizeof (int);
@@ -28,7 +33,7 @@ handle_read_chunk_request (int client_fd) {
         /* Copy the type of the response */
         memcpy (&ret, rec_buf + buf_ptr, sizeof (int));
         buf_ptr += sizeof (int);
-        
+
         if (ret == fail_response) {
                 /* Copy the type of the fail response */
                 memcpy (&ret, rec_buf + buf_ptr, sizeof (int));
@@ -53,9 +58,12 @@ handle_read_chunk_request (int client_fd) {
                 buf_ptr += sizeof (int);
                 
                 buf = (char*) calloc (1, ret);
+                
+                /* Copy the content to the buffer*/
                 memcpy (buf, rec_buf + buf_ptr, ret);
                 buf_ptr += ret;
                 
+                /* Open the file for writeing the copied content */
                 fd = open("read_file", O_WRONLY | O_CREAT);
                 if(fd == -1)
                 {
@@ -63,7 +71,7 @@ handle_read_chunk_request (int client_fd) {
                         ret = -1;
                         goto out;
                 }
-                
+                /* Write the copied content to the file */
                 ret = write (fd, buf, ret);
                 if (ret < 0)
                 {
@@ -73,5 +81,8 @@ handle_read_chunk_request (int client_fd) {
                 }
         }
 out:
+        if (fd > 0) {
+                        close (fd);
+        }
         return;
 }

@@ -1,5 +1,9 @@
 #include "socket_header.h"
-
+/* 
+ * This function is to handle the opening of the file request.
+ * Input:
+ *      int client_fd   :       specifies the connection identifier
+ * */
 void
 handle_open_file_request (int client_fd) {
         

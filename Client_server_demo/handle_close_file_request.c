@@ -1,5 +1,10 @@
 #include "socket_header.h"
 
+/*
+ * This function will perform the close file request.
+ * Input:
+ *      int client_fd   :       Specifing the connection.
+ * */
 void 
 handle_close_file_request (int client_fd) {
         
@@ -28,6 +33,7 @@ handle_close_file_request (int client_fd) {
         memcpy (&ret, rec_buf + buf_ptr, sizeof (int));
         buf_ptr += sizeof (int);
         
+        /* Check the return value for the successful operation */
         if (ret == success_response) {
                 printf ("\tOperation Successful \n");
         }
