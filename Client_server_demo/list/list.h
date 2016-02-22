@@ -11,7 +11,7 @@ typedef struct list_node
         void *data;
         struct list_node *next;
         struct list_node *prev;
-} list_node l_node_t;
+} l_node_t;
 
 /*
  * Structure for the list;
@@ -27,7 +27,7 @@ typedef char boolean_t;
 
 /* Call back function */
 typedef
-boolean_t (*) (void *, void *) cbk_fun_t;
+boolean_t (*cbk_fun_t) (void *, void *);
 
 /* function for Matching the arguments */
 boolean_t match_arg_list (void *, void *);
@@ -42,7 +42,7 @@ list_free (list_t *list_obj);
 
 /*Function for inserting data into the list */
 l_node_t *
-insert_into_list (list_t *list_obj, void* arg);
+insert_into_list (list_t *list_obj, void *arg);
 
 /*Function for removing data from the queue */
 int

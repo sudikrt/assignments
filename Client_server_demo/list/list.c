@@ -30,7 +30,7 @@ out:
  * Output:
  *      int                     :       specifies the successful insertion.
  * */
-int
+l_node_t*
 insert_into_list (list_t *list_obj, void *arg) {
         int ret         =       -1;
         l_node_t *obj_node;
@@ -38,7 +38,7 @@ insert_into_list (list_t *list_obj, void *arg) {
         /* Allocate the memory */
         obj_node = (l_node_t *) calloc (1, sizeof (l_node_t));
         obj_node -> data = (void *) calloc (1, sizeof (arg));
-        obj_node -> data arg;
+        obj_node -> data = arg;
         obj_node -> next = NULL;
         obj_node -> prev = NULL;
 
@@ -51,7 +51,7 @@ insert_into_list (list_t *list_obj, void *arg) {
         }
         else {
                 obj_node -> prev = list_obj -> first_node -> prev;
-                list_obj -> first_node -> prev = obj_node
+                list_obj -> first_node -> prev = obj_node;
                 obj_node -> next = list_obj -> first_node;
                 list_obj -> first_node = obj_node;
         }
@@ -189,14 +189,16 @@ out:
 void
 list_free (list_t *list_obj) {
         int index;
+        l_node_t *temp;
+
         if (list_obj != NULL) {
                 for (index = 0; index < list_obj -> max; index ++) {
                         temp = list_obj -> first_node;
-                        list -> first_node = temp -> next;
-                        list -> first_node -> prev = NULL;
+                        list_obj -> first_node = temp -> next;
+                        list_obj -> first_node -> prev = NULL;
                         
-                        if (temp -> arg != NULL) {
-                                free (temp -> arg);
+                        if (temp -> data != NULL) {
+                                free (temp -> data);
                         }
                         if (temp != NULL) {
                                 free (temp);
@@ -221,7 +223,7 @@ out:
 boolean_t
 match_arg_list (void *arg1, void *arg2) {
         int ret = 0;
-        if (arg1 == arg 2) {
+        if (arg1 == arg2) {
                 ret =1;
         }
 out:
