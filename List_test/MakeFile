@@ -1,0 +1,6 @@
+sudo_list: list_main.o list.o
+	gcc -o sudo_list list_main.o list.o
+list.o: list.c
+	gcc -g -c list.c
+list_main.o: list_main.c
+	gcc -g -c list_main.c
