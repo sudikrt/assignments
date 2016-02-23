@@ -68,65 +68,38 @@ out:
 int
 delete_from_list (list_t *list_obj, void *data) {
 
-        int ret         =       -1;
-        l_node_t *temp = list_obj -> first_node;
-        l_node_t *dummy = NULL;
+        l_node_t *ptr;
+        int ret = -1;
+        ptr = list_obj -> first_node;
         
-        /* If the node is empty */
-        if (list_obj -> first_node == NULL) {
+        while (ptr -> data != data && ptr -> next != NULL) {
+                ptr = ptr -> next;
+        }
+        if (ptr -> next == NULL && ptr -> data != data) {
+                printf ("\tERROR: No Match Found\n");
+                ret = -1;
                 goto out;
         }
-
-        while (temp -> next != NULL && (temp -> next) -> data != data) {
-                temp = temp -> next;
-        }
-
+        
         /* Aquire the lock */
         pthread_mutex_lock (&list_obj -> list_mutex);
-
-        if (temp -> next == NULL) {
-                /* If it is the first node */
-                if (temp == list_obj -> first_node) {
-                        if (temp -> data != NULL) {
-                                free (temp -> data);
-                        }
-                        if (temp != NULL) {
-                                free (temp);
-                        }
-                        list_obj -> max --;
-                }
-
-                /* if it is the last node */
-                if (temp -> next -> data == data) {
-                        if (temp -> next -> data != NULL) {
-                                free (temp -> next -> data);
-                        }
-                        if (temp -> next != NULL) {
-                                free (temp -> next);
-                        }
-                        list_obj -> max --;
-                }
-
-                /* Release the lock */
-                pthread_mutex_unlock (&list_obj -> list_mutex);
-                goto out;
+        
+        if (ptr == list_obj -> first_node) {
+                list_obj -> first_node = ptr -> next;
         }
-
-        dummy = temp -> next;
-        temp -> next = dummy -> next;
-        dummy -> next -> prev = temp;
-
+        
+        if (ptr -> next != NULL) {
+                ptr -> next -> prev = ptr -> next;
+        }
+        
+        if (ptr -> prev != NULL) {
+                ptr -> prev -> next = ptr -> next;
+        }
         list_obj -> max --;
-
+        
         /* Release the lock */
         pthread_mutex_unlock (&list_obj -> list_mutex);
-
-        if (dummy -> data != NULL) {
-                free (dummy -> data);
-        }
-        if (dummy != NULL) {
-                free (dummy);
-        }
+        free (ptr);
         ret = 0;
 out:
         return ret;
@@ -195,12 +168,9 @@ list_free (list_t *list_obj) {
                 for (index = 0; index < list_obj -> max; index ++) {
                         temp = list_obj -> first_node;
                         list_obj -> first_node = temp -> next;
-                        list_obj -> first_node -> prev = NULL;
-                        
-                        if (temp -> data != NULL) {
-                                free (temp -> data);
-                        }
+
                         if (temp != NULL) {
+                                free (temp -> data);
                                 free (temp);
                         }
                 }
@@ -223,9 +193,24 @@ out:
 boolean_t
 match_arg_list (void *arg1, void *arg2) {
         int ret = 0;
-        if (arg1 == arg2) {
-                ret =1;
-        }
 out:
         return ret;
+}
+
+void disp (list_t *list_obj) {
+        
+        int i;
+        l_node_t *temp = list_obj -> first_node;
+        
+        if (temp == NULL) {
+                printf ("List is empty\n");
+                goto out;
+        }
+        
+        for (i = 0; i < list_obj -> max; i++) {
+                printf ("%s\n", (char*) temp -> data);
+                temp = temp -> next;
+        }
+out:
+        return;
 }
