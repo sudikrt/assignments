@@ -1,0 +1,8 @@
+sudo_list: list_main.o list.o thread_pool.o
+	gcc -o sudo_list list_main.o list.o thread_pool.o -lpthread
+list.o: list.c
+	gcc -g -c list.c
+list_main.o: list_main.c
+	gcc -g -c list_main.c
+thread_pool.o: thread_pool.c
+	gcc -g -c thread_pool.c -lpthread
