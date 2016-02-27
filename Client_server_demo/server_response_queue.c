@@ -223,7 +223,7 @@ void set_thread_flag (int flag_value)
  * Input:
  *      int client_fd   :       specifies the connection identifier
  * */
-void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
+void server_response (int client_fd, thread_pool_t *pool_obj, C_Request* c_request)
 {
         char* buffer;
         char* data;
@@ -290,7 +290,8 @@ void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
                                         c_request -> operation = (void*) close_file_handler;
                                         break;
                         case read_in_chunks:
-                                        /* Process the read in chunks from the file and send it  back to the client */
+                                        /* Process the read in chunks from the file 
+                                         * and send it  back to the client */
                                         c_request -> type = read_in_chunks;
                                         c_request -> buf = (char*) calloc (1, ret - buf_ptr);
                                         memcpy (c_request -> buf, buffer + buf_ptr,
@@ -299,13 +300,13 @@ void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
                                         c_request -> operation = (void*) read_chunks_handler;
                                         break;
                 }
-                /* Check whether the queue is full or not 
-                * if queue is full then send feedback to client that
+                /* Check whether the list is full or not 
+                * if list is full then send feedback to client that
                 * client is full otherwise the request is added to the
                 * queue
                 * */
         data_read:
-                if (queue_full (queue_ref) == 1)
+                if (list_full (pool -> list) == 1)
                 {
                         /* Clears the buffer */
                         memset (buffer, 0, 1024);
@@ -337,15 +338,17 @@ void server_response (int client_fd, queue_t* queue_ref, C_Request* c_request)
                                 printf ("\tSome error ocurred\n");
                                 goto data_read;
                         }
+                        goto out;
                 }
 
-                /*Calles the function to add the client_request to the 
-                * queue */
-                ret = queue_put (queue_ref, c_request);
+                /*Calls the function to add the client_request to the 
+                * list */
+                pool_obj -> list -> first_node = insert_into_list 
+                                                (pool_obj -> list, c_request);
                 printf ("\tClient : %d's request is inserted\n", client_fd);
-
-                /* Wake Up the service thread. */
-                set_thread_flag (1);
+                pthread_mutex_lock (& (pool_obj -> q_lock));
+                pthread_cond_broadcast (& pool_obj -> cond_t);
+                pthread_mutex_unlock (& (pool_obj -> q_lock));
                 
         }
         out:

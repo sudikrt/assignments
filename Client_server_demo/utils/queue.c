@@ -5,7 +5,7 @@
  * of request this queue contains, it is initialized to zero.
  * 
  * Output:
- *      queue_t obj     :       reference for the initalized queue.
+ *      queue_t *obj     :       reference for the initalized queue.
  * */
 queue_t* queue_new ()
 {

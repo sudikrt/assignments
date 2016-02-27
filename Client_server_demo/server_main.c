@@ -1,16 +1,5 @@
 #include "socket_header.h"
 
-/* This function will initialize the mutex and condition variables*/
-void initialize_flag ()
-{
-        /* Initializing the mutex and condition variable.*/
-        pthread_mutex_init (&lock, NULL);
-        pthread_mutex_init (&thread_flag_mutex, NULL);
-        pthread_cond_init (&thread_flag_cv, NULL);
-        /* Initializing the flag value. */
-        thread_flag = 0;
-}
-
 /* This is the main fuction where server starts and initializes the socket
  * for listening the client.
  * Input:
@@ -27,17 +16,12 @@ int main (int argc, char* argv [])
         int ret             =       -1;
         int client_fd       =       0;
         int port            =       0;
+        int max_thread      =       3;
         int next_option;
         pthread_t pid, t_id;
 
         struct sockaddr_in client_addr;
         C_Request* c_req;
-
-        /* Get the new queue and it will be initialized */
-        queue_obj = queue_new ();
-        
-        /* Initialize the condition and mutex variables*/
-        initialize_flag ();
 
         /* Get the linked list and initialize it */
         fd_node = NULL;
@@ -84,9 +68,10 @@ int main (int argc, char* argv [])
                 goto out;
         }
 
-        /*Thread to servrice the request the each client_request*/
-        pthread_create (&t_id, NULL, &service_queue, queue_obj);
-
+        /* Create the thread_pool and initialize the list */
+        pthread_create (&t_id, NULL, &create_thread_pool, &max_thread);
+        pthread_join (t_id, (void*) &pool);
+        
         while (1)
         {
                 /*Accept the incomming client connection*/
@@ -102,7 +87,7 @@ int main (int argc, char* argv [])
                 /*Giving the service to client*/
                 c_req = (C_Request*) calloc (1, sizeof (C_Request));
 
-                server_response (client_fd, queue_obj, c_req);
+                server_response (client_fd, pool, c_req);
         }
 
         ret = 0;

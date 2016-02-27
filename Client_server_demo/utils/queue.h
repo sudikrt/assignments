@@ -46,7 +46,3 @@ int queue_put (queue_t* obj_queue , void* arg);
 int queue_get (queue_t* obj_queue, queue_cbk_t arg);
 
 void node_free (q_node_t* node);
-
-
-
-

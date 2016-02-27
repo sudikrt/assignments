@@ -1,3 +1,5 @@
+#include "utils/list.h"
+#include "utils/pool.h"
 #include "utils/queue.h"
 #include <stdio.h>
 #include <sys/socket.h>
@@ -94,6 +96,9 @@ char* exp_dir;
 char* dest_dir;
 
 int file_desc_client;
+
+/* Creating the thread pool variable */
+thread_pool_t *pool;
 
 /* Variable decleration of lock object and condition variables */
 pthread_mutex_t lock;
