@@ -16,7 +16,7 @@ list_new () {
         list_obj -> first_node-> data = (void*) calloc (1, sizeof (void));
         list_obj -> first_node = NULL;
         
-        list_obj -> max = 0;
+        list_obj -> node_count = 0;
 out:
         return list_obj;
 }
@@ -32,8 +32,8 @@ out:
  * */
 l_node_t*
 insert_into_list (list_t *list_obj, void *arg) {
-        int ret         =       -1;
-        l_node_t *obj_node;
+        int ret                 =       -1;
+        l_node_t *obj_node      =       NULL;
 
         /* Allocate the memory */
         obj_node = (l_node_t *) calloc (1, sizeof (l_node_t));
@@ -50,12 +50,12 @@ insert_into_list (list_t *list_obj, void *arg) {
                 list_obj -> first_node = obj_node;
         }
         else {
-                obj_node -> prev = list_obj -> first_node -> prev;
+                obj_node -> prev = NULL;
                 list_obj -> first_node -> prev = obj_node;
                 obj_node -> next = list_obj -> first_node;
                 list_obj -> first_node = obj_node;
         }
-        list_obj -> max ++;
+        list_obj -> node_count ++;
         
         /* Release the lock */
         pthread_mutex_unlock (&list_obj -> list_mutex);
@@ -84,13 +84,13 @@ delete_from_list (list_t *list_obj, list_cbk_t arg) {
         }
         
         if (ptr -> next != NULL) {
-                ptr -> next -> prev = ptr -> next;
+                ptr -> next -> prev = ptr -> prev;
         }
         
         if (ptr -> prev != NULL) {
                 ptr -> prev -> next = ptr -> next;
         }
-        list_obj -> max --;
+        list_obj -> node_count --;
         
         /* Release the lock */
         pthread_mutex_unlock (&list_obj -> list_mutex);
@@ -164,7 +164,7 @@ list_free (list_t *list_obj) {
         l_node_t *temp;
 
         if (list_obj != NULL) {
-                for (index = 0; index < list_obj -> max; index ++) {
+                for (index = 0; index < list_obj -> node_count; index ++) {
                         temp = list_obj -> first_node;
                         list_obj -> first_node = temp -> next;
 
@@ -206,7 +206,7 @@ void disp (list_t *list_obj) {
                 goto out;
         }
         
-        for (i = 0; i < list_obj -> max; i++) {
+        for (i = 0; i < list_obj -> node_count; i++) {
                 printf ("%s\n", (char*) temp -> data);
                 temp = temp -> next;
         }
@@ -224,7 +224,7 @@ out:
 int list_full (list_t* arg)
 {
         int ret = 0;
-        if (arg -> max >= 200)
+        if (arg -> node_count >= 200)
         {
                 ret = 1;
         }

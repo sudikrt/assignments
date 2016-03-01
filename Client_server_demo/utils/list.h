@@ -20,7 +20,7 @@ typedef struct list_node
 typedef struct list
 {
         pthread_mutex_t list_mutex;
-        int max;
+        int node_count;
         l_node_t *first_node;
 } list_t;
 
