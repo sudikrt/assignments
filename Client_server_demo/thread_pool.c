@@ -121,7 +121,7 @@ void* do_work(void *pool_obj) {
         thread_pool_t *pool = (thread_pool_t *) pool_obj;
         while (1) {
                 pthread_mutex_lock (& (pool -> q_lock));
-                while (pool -> list -> max == 0) {
+                while (pool -> list -> node_count == 0) {
                         /*
                          * Code for handling the work load
                          * Wait untill condition says there is a new request */
@@ -135,7 +135,7 @@ void* do_work(void *pool_obj) {
                 printf ("\t Thread id %d is ...\t ", pthread_self());
                 cbk_obj = handle_request;
                 /* remove one request from the list and process it */
-                if (pool -> list -> max) {
+                if (pool -> list -> node_count) {
                         delete_from_list (pool -> list, cbk_obj);
                 }
         }
